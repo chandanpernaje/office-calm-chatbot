@@ -11,16 +11,15 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi import Body, Request
 from fastapi.responses import HTMLResponse, JSONResponse
-from fastapi.exceptions import RequestValidationError
-from starlette.exceptions import HTTPException as StarletteHTTPException
-
 from pymongo import MongoClient
 
-MONGO_URI = os.getenv("MONGO_URI", "mongodb+srv://test:test@cluster.mongodb.net/test?retryWrites=true&w=majority")
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
+MONGO_DB = os.getenv("MONGO_DB", "office_calm_db")
+
 # We will use a safe default if MONGO_URI isn't valid, or just standard localhost
 try:
     mongo_client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
-    db = mongo_client["office_calm_db"]
+    db = mongo_client[MONGO_DB]
 except Exception:
     db = None
 
