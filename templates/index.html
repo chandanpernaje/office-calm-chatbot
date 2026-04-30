@@ -374,10 +374,10 @@
         const data = await res.json();
         dotsRow.remove();
         
+        // Ensure the sidebar updates even if it's not a brand new session
         if (data.session_id) {
-          const isNew = !currentSessionId;
           currentSessionId = data.session_id;
-          if (isNew) loadSessions();
+          loadSessions(); 
         }
         
         if (data.error) addMsg("assistant", "Error: " + data.error);
@@ -391,6 +391,8 @@
       }
     });
 
+    // Refresh history every 30 seconds automatically just in case
+    setInterval(loadSessions, 30000);
     loadSessions();
   </script>
 </body>
