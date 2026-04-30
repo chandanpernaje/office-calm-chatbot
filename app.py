@@ -238,68 +238,29 @@ def _offline_office_response(user_text: str) -> str:
     has_kn = bool(re.search(r"[\u0C80-\u0CFF]", t))
     has_hi = bool(re.search(r"[\u0900-\u097F]", t))
 
-    # Professional Greeting Fallback
+    # Simple Professional Greetings
     greetings = ["hi", "hello", "hey", "good morning", "good afternoon", "good evening", "namaste"]
     if any(low == g or low.startswith(g + " ") for g in greetings):
         if has_kn: return "ನಮಸ್ಕಾರ. ನಿಮ್ಮ ಕಚೇರಿಯ ಒತ್ತಡವನ್ನು ನಿರ್ವಹಿಸಲು ನಾನು ಇಲ್ಲಿದ್ದೇನೆ. ನಿಮಗೆ ಹೇಗೆ ಸಹಾಯ ಮಾಡಲಿ?"
-        if has_hi: return "नमस्ते। मैं आपके कार्यालय के तनाव को प्रबंधित करने में आपकी सहायता के लिए यहाँ हूँ। मैं आपकी कैसे मदद कर सकता हूँ?"
-        return "Good day. I am your Office Calm professional consultant. I am here to support your workplace wellbeing and help manage professional stress. How may I assist you today?"
+        if has_hi: return "नमस्ते। मैं आपके तनाव प्रबंधन में सहायता के लिए यहाँ हूँ। मैं आपकी कैसे मदद कर सकता हूँ?"
+        return "Greetings. I am here to support your workplace wellbeing. How can I assist you with your professional stress today?"
 
-    boss_kw = ["boss", "manager", "supervisor", "shouted", "yelled", "scolded", "angry boss"]
-    team_kw = ["teammate", "colleague", "coworker", "conflict", "argument", "backstab"]
-    work_kw = ["too much work", "overwhelmed", "overload", "stressed", "burnout", "deadline", "pressure"]
     crisis_kw = ["suicide", "self-harm", "kill myself", "end it all", "want to die", "hopeless"]
-
     if any(kw in low for kw in crisis_kw):
-        return (
-            "⚠️ **URGENT INTERVENTION REQUIRED**\n\n"
-            "If you are experiencing a mental health crisis or thinking about self-harm, please seek professional help immediately. You are not alone.\n\n"
-            "**Crisis Resources:**\n"
-            "• India: AASRA (9820466726) or Vandrevala Foundation (9999666555)\n"
-            "• International: Please contact your local emergency services immediately.\n\n"
-            "Please reach out to a trusted professional or a friend right now."
-        )
-    
+        return "⚠️ **Professional Alert:** You seem to be in significant distress. Please contact a crisis helpline immediately: India (AASRA: 9820466726) or your local emergency services. You are not alone."
+
+    # Simple Professional Guidance
     if has_kn:
-        return ("ಗೌರವಾನ್ವಿತ ಬಳಕೆದಾರರೇ, ದಯವಿಟ್ಟು ಈ ಹಂತಗಳನ್ನು ಅನುಸರಿಸಿ:\n"
-                "1) 60 ಸೆಕೆಂಡುಗಳ ಕಾಲ ದೀರ್ಘವಾಗಿ ಉಸಿರಾಡಿ.\n"
-                "2) ಸ್ವಲ್ಪ ನೀರು ಕುಡಿದು 2 ನಿಮಿಷಗಳ ಕಾಲ ವಿರಾಮ ತೆಗೆದುಕೊಳ್ಳಿ.\n"
-                "3) ನಿಮ್ಮ ಕೆಲಸದ ಆದ್ಯತೆಗಳನ್ನು ಪಟ್ಟಿ ಮಾಡಿ.\n"
-                "ನಿಮ್ಮ ಕಚೇರಿಯಲ್ಲಿ ನಿಖರವಾಗಿ ಏನಾಯಿತು ಎಂದು ನನಗೆ ತಿಳಿಸಿ.")
-                
-    if has_hi:
-        return ("नमस्ते। कृपया इन चरणों का पालन करें:\n"
-                "1) 60 सेकंड के लिए गहरी सांस लें।\n"
-                "2) थोड़ा पानी पिएं और 2 मिनट का ब्रेक लें।\n"
-                "3) अपने कार्यों की प्राथमिकता तय करें।\n"
-                "बताएं, आपके कार्यालय में वास्तव में क्या हुआ?")
-
-    if any(kw in low for kw in boss_kw):
-        return ("⚖️ **Professional Guidance: Managerial Conflict**\n\n"
-                "1) **Immediate Response:** Practice 4-7-8 breathing and maintain a neutral expression.\n"
-                "2) **Professional Boundary:** If being shouted at, calmly state: 'I want to resolve this, but I find it difficult to communicate when voices are raised. Can we discuss this in 10 minutes?'\n"
-                "3) **Actionable Step:** Document the facts of the encounter immediately in a private journal.\n"
-                "4) **Resolution:** Schedule a follow-up meeting once emotions have settled to discuss the workload or feedback constructively.")
+        return "ನಮ್ಮ AI ಪ್ರಸ್ತುತ ಕಾರ್ಯನಿರತವಾಗಿದೆ. ದಯವಿಟ್ಟು 60 ಸೆಕೆಂಡುಗಳ ಕಾಲ ದೀರ್ಘವಾಗಿ ಉಸಿರಾಡಿ ಮತ್ತು ಸ್ವಲ್ಪ ನೀರು ಕುಡಿಯಿರಿ. ನಿಮ್ಮ ಸಮಸ್ಯೆಯನ್ನು ಸಂಕ್ಷಿಪ್ತವಾಗಿ ತಿಳಿಸಿ."
     
-    if any(kw in low for kw in team_kw):
-        return ("🤝 **Professional Guidance: Colleague Conflict**\n\n"
-                "1) **Maintain Composure:** Take a short walk to reset your nervous system.\n"
-                "2) **Assume Positive Intent:** Try to separate the teammate's behavior from the professional task.\n"
-                "3) **Communication:** Request a brief 1-on-1: 'I’d like to ensure we’re aligned on [Task]. Can we sync for 5 minutes?'\n"
-                "4) **Escalation:** If the issue persists, involve your manager formally with factual evidence.")
+    if has_hi:
+        return "हमारा AI वर्तमान में व्यस्त है। कृपया 60 सेकंड के लिए गहरी सांस लें और थोड़ा पानी पिएं। अपनी समस्या संक्षेप में बताएं।"
 
-    if any(kw in low for kw in work_kw):
-        return ("⏳ **Professional Guidance: Workload & Burnout**\n\n"
-                "1) **Priority Matrix:** List all tasks and identify the 'Most Important Task' (MIT).\n"
-                "2) **Communication:** Email your supervisor: 'I am currently managing [X] tasks. To ensure quality, which of these should I prioritize today?'\n"
-                "3) **Micro-breaks:** Follow the 50/10 rule—50 minutes of focus, 10 minutes of complete rest.\n"
-                "4) **Sustainability:** Ensure you disconnect completely from work emails after hours.")
-
-    return ("Greetings. I am here to assist with your professional stress management. Please consider these immediate steps:\n\n"
-            "• **Physiological Calm:** Inhale for 4 seconds, hold for 4, exhale for 8. Repeat 4 times.\n"
-            "• **Grounding:** Identify 5 things you can see around your workstation.\n"
-            "• **Prioritization:** Focus exclusively on one small task for the next 15 minutes.\n\n"
-            "Could you please describe the specific workplace situation that is concerning you?")
+    return ("✨ **Pro-Tip:** The AI is currently processing high demand. To manage stress right now:\n\n"
+            "1. **Breathe:** Take 3 deep breaths (4s in, 8s out).\n"
+            "2. **Hydrate:** Drink a glass of water.\n"
+            "3. **Focus:** Pick one tiny task to do for 5 minutes.\n\n"
+            "I am ready to help—please describe your situation in one sentence.")
 
 
 # ── Gemini prompts ──
