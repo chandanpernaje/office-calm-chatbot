@@ -2,13 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Office Calm Chatbot</title>
   <link rel="stylesheet" href="/static/style.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
   <div class="app-container">
+    <div class="sidebar-overlay" id="overlay"></div>
     <!-- Sidebar -->
     <nav class="sidebar" id="sidebar">
       <div class="sidebar-top">
@@ -65,11 +66,16 @@
     const newChatBtn = document.getElementById("newChatBtn");
     const sessionList = document.getElementById("sessionList");
     const searchHistory = document.getElementById("searchHistory");
+    const overlay = document.getElementById("overlay");
+
+    function toggleSidebar() {
+      sidebar.classList.toggle("open");
+      overlay.classList.toggle("show");
+    }
 
     // Toggle sidebar
-    menuBtn.addEventListener("click", () => {
-      sidebar.classList.toggle("open");
-    });
+    menuBtn.addEventListener("click", toggleSidebar);
+    overlay.addEventListener("click", toggleSidebar);
 
     // Search history filter
     searchHistory.addEventListener("input", (e) => {

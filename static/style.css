@@ -318,6 +318,15 @@ button[type="submit"]:disabled {
   text-align: center;
 }
 
+/* Overlay for mobile sidebar */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 999;
+}
+
 /* Mobile */
 @media (max-width: 768px) {
   .sidebar {
@@ -331,6 +340,10 @@ button[type="submit"]:disabled {
   .sidebar.open {
     transform: translateX(0);
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  }
+
+  .sidebar-overlay.show {
+    display: block;
   }
 
   .menu-btn {
