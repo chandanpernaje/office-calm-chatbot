@@ -154,13 +154,14 @@ def _is_office_stress_topic(text: str) -> bool:
 
 
 OFF_TOPIC_RESPONSE = (
-    "🙏 I'm your **Office Stress Support Assistant**. I can only help with:\n\n"
-    "• Workplace stress & anxiety\n"
-    "• Boss / colleague conflicts\n"
-    "• Workload & burnout\n"
-    "• Office mental health & coping strategies\n"
-    "• Career pressure & deadlines\n\n"
-    "Please share your office-related concern and I'll help you! 💼"
+    "⚖️ **Professional Scope Validation**\n\n"
+    "I am programmed to maintain a strictly professional focus on **Workplace Mental Health and Office Stress Management**.\n\n"
+    "The query you provided falls outside of this professional scope. To assist you effectively, please provide a query related to:\n"
+    "• Workplace anxiety or burnout\n"
+    "• Professional interpersonal conflicts\n"
+    "• Career-related pressure and deadlines\n"
+    "• Corporate coping strategies\n\n"
+    "I am here to support your professional wellbeing. How can I help you with your office stress today?"
 )
 
 # ── Chat history helpers (MongoDB) ──
