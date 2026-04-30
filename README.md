@@ -1,6 +1,6 @@
-# Office Calm Chatbot
+# Office Calm Chatbot (LLM-Based)
 
-An AI-powered chatbot to help office workers manage stress, anger, and conflict. Built with FastAPI, MongoDB, and Google Gemini.
+An LLM-powered therapeutic chatbot designed to help office workers manage stress, anger, and conflict. Built with FastAPI, MongoDB, and the Google Gemini Large Language Model.
 
 ## 🛠️ Tech Stack
 - **Backend:** Python 3.12, FastAPI, Uvicorn
