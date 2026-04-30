@@ -43,10 +43,7 @@ async def global_exception_handler(request: Request, exc: Exception):
         content={"error": f"Internal Server Error: {str(exc)}"}
     )
 
-# Serve React build (if exists)
-dist_dir = os.path.join(os.path.dirname(__file__), "frontend", "dist")
-if os.path.isdir(dist_dir):
-    app.mount("/assets", StaticFiles(directory=os.path.join(dist_dir, "assets")), name="assets")
+
 
 # ── Topic validation keywords ──
 OFFICE_STRESS_KEYWORDS = [
@@ -399,18 +396,19 @@ def _select_working_model_name(preferred: str) -> str:
     return preferred
 
 
-# ── API Routes ──
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
-    index_path = os.path.join(os.path.dirname(__file__), "frontend", "dist", "index.html")
-    if os.path.exists(index_path):
-        with open(index_path, "r", encoding="utf-8") as f:
-            return HTMLResponse(content=f.read())
-    return HTMLResponse("React frontend build not found. Run `npm run build` in the frontend directory.")
-
-
-@app.post("/api/sessions/create")
+    return templates.TemplateResponse(
+        "index.html",
+        {
+            "request": request,
+            "gemini_ready": _GEMINI_READY,
+            "model": GEMINI_MODEL,
+        },
+    )
 async def create_session():
     sid = _create_session()
     return JSONResponse({"session_id": sid})
