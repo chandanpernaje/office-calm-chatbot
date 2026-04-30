@@ -8,10 +8,13 @@ def upsert_bom_item(item: Dict) -> None:
     item = dict(item)
     item.setdefault("created_at", datetime.utcnow())
     # use part_number or name as unique key when available
-    query = {k: item[k] for k in ("part_number",) if k in item}
+    query = {k: item[k] for k in ("part_number",) if item.get(k)}
     if not query:
         # fallback to name
-        query = {"name": item.get("name")}
+        name = item.get("name")
+        if not name:
+            return # skip invalid
+        query = {"name": name}
     col.update_one(query, {"$set": item}, upsert=True)
 
 

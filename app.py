@@ -154,7 +154,7 @@ templates = Jinja2Templates(directory="templates")
 # Load environment and configure Gemini client if key present
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5" )
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-flash" )
 _GEMINI_READY = bool(GEMINI_API_KEY)
 if _GEMINI_READY:
     try:
@@ -198,9 +198,10 @@ Task:
 - Detect if the user reports they are receiving professional care (therapy/psychiatrist/medication) or mentions crisis language.
 - Produce a short structured plan for the final assistant message.
 - Identify if there is any risk (self-harm/violence/harassment). If risk is present, flag it clearly and recommend urgent action.
+- Detect if the user's message is completely unrelated to workplace stress, burnout, office conflicts, or mental health at work. Set 'is_off_topic' to true if it is unrelated (e.g., coding help, general knowledge, casual chat unrelated to work).
 
 Output MUST be valid JSON with keys:
-emotion, likely_trigger, intent, risk_flag (true/false), plan_steps (array of strings), suggested_tone, psychological_factors, is_in_care (true/false), recommended_action.
+emotion, likely_trigger, intent, risk_flag (true/false), plan_steps (array of strings), suggested_tone, psychological_factors, is_in_care (true/false), recommended_action, is_off_topic (true/false).
 Do not include any extra keys.
 """.strip()
 
@@ -209,6 +210,7 @@ You are a helpful chatbot for office workers who feel angry/frustrated.
 
 Rules:
 - Be brief, practical, and kind.
+- IMPORTANT STRICT RULE: If the internal analysis flags the message as 'is_off_topic' (true), you MUST politely but firmly decline to answer. Explain that you are an Office Calm chatbot designed ONLY to help with workplace stress, burnout, office conflicts, and mental health at work. DO NOT provide the answer to their off-topic query.
 - Give MULTIPLE solutions (at least 3-4 different approaches) based on psychological principles:
     * Immediate calming techniques (breathing, grounding, physical movement)
     * Cognitive reframing (perspective shifts, reinterpreting the situation)
@@ -224,19 +226,14 @@ Rules:
 """.strip()
 
 
-def _model() -> genai.GenerativeModel:
-    return genai.GenerativeModel(GEMINI_MODEL)
+def _model(system_instruction: Optional[str] = None) -> genai.GenerativeModel:
+    return genai.GenerativeModel(GEMINI_MODEL, system_instruction=system_instruction)
 
 
 async def gemini_admin_analyze(user_text: str) -> Dict[str, Any]:
     # We force JSON by asking for JSON and parsing defensively.
-    m = _model()
-    resp = m.generate_content(
-        [
-            {"role": "user", "parts": [ADMIN_ANALYSIS_PROMPT]},
-            {"role": "user", "parts": [user_text]},
-        ]
-    )
+    m = _model(system_instruction=ADMIN_ANALYSIS_PROMPT)
+    resp = await m.generate_content_async(user_text)
     text = (resp.text or "").strip()
     # Best-effort JSON extraction (handles occasional markdown fences)
     if "```" in text:
@@ -262,6 +259,7 @@ async def gemini_admin_analyze(user_text: str) -> Dict[str, Any]:
             "suggested_tone": "calm, supportive",
             "is_in_care": False,
             "recommended_action": "suggest non-urgent follow-up with clinician when appropriate",
+            "is_off_topic": False,
         }
 
 
@@ -270,10 +268,9 @@ async def gemini_reply(user_text: str, analysis: Dict[str, Any], history: Option
     history: list of {role: "user"|"assistant", content: "..."} from the client.
     We do NOT send internal analysis prompt to client; analysis is injected server-side.
     """
-    m = _model()
+    m = _model(system_instruction=DEVELOPER_RESPONSE_PROMPT)
     # Keep context lightweight and safe.
     convo_parts: List[Dict[str, Any]] = []
-    convo_parts.append({"role": "user", "parts": [DEVELOPER_RESPONSE_PROMPT]})
 
     internal_analysis_json = json.dumps(
         {
@@ -283,6 +280,7 @@ async def gemini_reply(user_text: str, analysis: Dict[str, Any], history: Option
             "risk_flag": analysis.get("risk_flag"),
             "plan_steps": analysis.get("plan_steps"),
             "suggested_tone": analysis.get("suggested_tone"),
+            "is_off_topic": analysis.get("is_off_topic"),
         },
         ensure_ascii=False,
     )
@@ -306,7 +304,7 @@ async def gemini_reply(user_text: str, analysis: Dict[str, Any], history: Option
 
     convo_parts.append({"role": "user", "parts": [f"USER: {user_text}"]})
 
-    resp = m.generate_content(convo_parts)
+    resp = await m.generate_content_async(convo_parts)
     return (resp.text or "").strip()
 
 

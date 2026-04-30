@@ -1,48 +1,40 @@
-# Office Calm Chatbot (Python + Gemini)
+# Office Calm Chatbot
 
-This is a small web chatbot that:
+An AI-powered chatbot to help office workers manage stress, anger, and conflict. Built with FastAPI, MongoDB, and Google Gemini.
 
-- Uses **Gemini (LLM)** via your **Gemini API key**
-- Runs a **hidden admin/developer “analysis” step** on the server before generating the user-facing reply
-- Supports **Kannada** responses when the user writes Kannada
+## Features
+- AI-driven emotional analysis.
+- Multi-lingual support (English, Kannada, Hindi).
+- Practical calming and communication strategies.
+- Automatic Purchase Order (PO) creation from emails.
 
-## Setup (Windows)
+## Setup Locally
+1. **Clone the repo.**
+2. **Install requirements:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. **Configure Environment:** Create a `.env` file in the root:
+   ```env
+   GEMINI_API_KEY=your_key_here
+   MONGO_URI=mongodb://localhost:27017
+   MONGO_DB=office_procurement
+   ```
+4. **Run:**
+   ```bash
+   python -m uvicorn app:app --reload
+   ```
 
-1) Open PowerShell in this folder:
+## Deploying to Vercel
+This project is configured for Vercel using `vercel.json`.
 
-`d:\v\office-calm-chatbot`
+1. **Environment Variables**: Add these in the Vercel Dashboard:
+   - `GEMINI_API_KEY`: Your Google AI Studio key.
+   - `MONGO_URI`: Your MongoDB Atlas connection string.
+   - `MONGO_DB`: Your database name.
+2. **Push to GitHub**: Connect your repo to Vercel, and it will deploy automatically.
 
-2) Create virtual environment and install deps:
-
-```powershell
-py -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-```
-
-3) Create `.env` file (copy from `.env.example`) and add your key:
-
-```text
-GEMINI_API_KEY=YOUR_KEY_HERE
-GEMINI_MODEL=gemini-1.5-flash
-```
-
-4) Run the server:
-
-```powershell
-uvicorn app:app --reload
-```
-
-5) Open:
-
-`http://127.0.0.1:8000`
-
-## Where the “admin/developer prompt” lives
-
-All hidden prompts are only in `app.py`:
-
-- `ADMIN_ANALYSIS_PROMPT` (internal analysis JSON)
-- `DEVELOPER_RESPONSE_PROMPT` (final reply rules)
-
-The browser never receives these prompts.
-
+## API Endpoints
+- `POST /api/chat`: Chat with the AI.
+- `POST /api/purchase/process_email`: Process procurement emails.
+- `GET /api/purchase/orders`: List created POs.
