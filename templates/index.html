@@ -2,381 +2,149 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="description" content="Office Calm Chatbot - Your AI-powered workplace stress support assistant">
-  <title>Office Calm – Workplace Stress Support</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Office Calm Chatbot</title>
   <link rel="stylesheet" href="/static/style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧘</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="app-container">
-    <div class="sidebar-overlay" id="overlay"></div>
+  <div class="app">
+    <div class="overlay" id="overlay"></div>
 
     <!-- Sidebar -->
-    <nav class="sidebar" id="sidebar">
-      <div class="sidebar-top">
-        <button class="new-chat-btn" id="newChatBtn">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
-          New Chat
-        </button>
-        <div class="search-box">
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-          <input type="text" id="searchHistory" placeholder="Search chats..." autocomplete="off">
-        </div>
+    <aside class="sidebar" id="sidebar">
+      <button class="new-chat-btn" id="newChatBtn">+ New Chat</button>
+      <div class="sessions" id="sessionList"></div>
+      <div class="sidebar-footer">💼 Office Calm</div>
+    </aside>
+
+    <!-- Main -->
+    <div class="main">
+      <div class="topbar">
+        <button class="menu-btn" id="menuBtn">☰</button>
+        <span>Office Calm Chatbot</span>
       </div>
 
-      <div class="session-list" id="sessionList"></div>
-
-      <div class="sidebar-bottom">
-        <div class="sidebar-brand">
-          <span class="brand-icon">💼</span>
-          <span>Office Calm v2.0</span>
-        </div>
-      </div>
-    </nav>
-
-    <!-- Main Content -->
-    <main class="main-content">
-      <header class="header" id="header">
-        <button class="menu-btn" id="menuBtn">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="20" y2="12"></line><line x1="4" y1="6" x2="20" y2="6"></line><line x1="4" y1="18" x2="20" y2="18"></line></svg>
-        </button>
-        <div class="header-title">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.6"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-          Office Calm
-        </div>
-      </header>
-
-      <div class="chat-container" id="chat">
-        <!-- Welcome Screen -->
-        <div class="welcome-screen" id="welcomeScreen">
-          <div class="welcome-glow"></div>
-          <div class="welcome-icon">🧘‍♂️</div>
-          <h1 class="welcome-title">How can I help you today?</h1>
-          <p class="welcome-subtitle">I'm here to support you with workplace stress, burnout, and office conflicts.</p>
-          <div class="scope-tags">
-            <span class="scope-tag">😤 Stress & Anxiety</span>
-            <span class="scope-tag">👔 Boss Conflicts</span>
-            <span class="scope-tag">🔥 Burnout</span>
-            <span class="scope-tag">🤝 Team Issues</span>
-          </div>
-          <div class="chips-grid">
-            <button class="chip-btn" onclick="useChip('My boss shouted at me today')">
-              <span class="chip-icon">😠</span>
-              <span class="chip-text">My boss shouted at me today</span>
-            </button>
-            <button class="chip-btn" onclick="useChip('I\'m overwhelmed with deadlines')">
-              <span class="chip-icon">😰</span>
-              <span class="chip-text">I'm overwhelmed with deadlines</span>
-            </button>
-            <button class="chip-btn" onclick="useChip('Conflict with a teammate')">
-              <span class="chip-icon">🤝</span>
-              <span class="chip-text">Conflict with a teammate</span>
-            </button>
-            <button class="chip-btn" onclick="useChip('I feel burned out')">
-              <span class="chip-icon">🔥</span>
-              <span class="chip-text">I feel burned out</span>
-            </button>
+      <div class="messages" id="chat">
+        <div class="welcome" id="welcome">
+          <div class="welcome-emoji">🧘‍♂️</div>
+          <h2>How can I help you today?</h2>
+          <p>I only help with office stress, burnout & workplace conflicts.</p>
+          <div class="chips">
+            <button onclick="useChip('My boss shouted at me')">😠 My boss shouted at me</button>
+            <button onclick="useChip('I feel burned out')">🔥 I feel burned out</button>
+            <button onclick="useChip('Conflict with a teammate')">🤝 Conflict with a teammate</button>
+            <button onclick="useChip('Overwhelmed with deadlines')">😰 Overwhelmed with deadlines</button>
           </div>
         </div>
       </div>
 
-      <div class="input-area">
-        <form id="form" class="input-form">
-          <textarea id="msg" placeholder="Describe your office situation..." rows="1" maxlength="2000" required></textarea>
-          <div class="input-actions">
-            <span class="char-count" id="charCount">0/2000</span>
-            <button type="submit" id="sendBtn" title="Send message">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 14-7-4 7 4 7Z"/><path d="M5 12h14"/></svg>
-            </button>
-          </div>
+      <div class="composer">
+        <form id="form">
+          <textarea id="msg" placeholder="Type your office problem..." rows="1" maxlength="2000"></textarea>
+          <button type="submit" id="sendBtn">➤</button>
         </form>
-        <p class="footer-note">Office Calm focuses strictly on workplace stress. It may make mistakes.</p>
+        <small>Office Calm can make mistakes. Only for workplace stress.</small>
       </div>
-    </main>
+    </div>
   </div>
 
   <script>
     let currentSessionId = null;
-    const chatEl = document.getElementById("chat");
+    const chat = document.getElementById("chat");
     const form = document.getElementById("form");
-    const msgEl = document.getElementById("msg");
+    const msg = document.getElementById("msg");
     const sendBtn = document.getElementById("sendBtn");
-    const charCount = document.getElementById("charCount");
-
-    // Sidebar elements
     const sidebar = document.getElementById("sidebar");
-    const menuBtn = document.getElementById("menuBtn");
-    const newChatBtn = document.getElementById("newChatBtn");
-    const sessionList = document.getElementById("sessionList");
-    const searchHistory = document.getElementById("searchHistory");
     const overlay = document.getElementById("overlay");
+    const sessionList = document.getElementById("sessionList");
 
-    function toggleSidebar() {
-      sidebar.classList.toggle("open");
-      overlay.classList.toggle("show");
-    }
+    // Sidebar toggle
+    document.getElementById("menuBtn").onclick = () => { sidebar.classList.toggle("open"); overlay.classList.toggle("show"); };
+    overlay.onclick = () => { sidebar.classList.remove("open"); overlay.classList.remove("show"); };
 
-    menuBtn.addEventListener("click", toggleSidebar);
-    overlay.addEventListener("click", toggleSidebar);
-
-    // Search history
-    searchHistory.addEventListener("input", (e) => {
-      const q = e.target.value.toLowerCase();
-      document.querySelectorAll(".session-item").forEach(item => {
-        const title = item.querySelector(".session-title").textContent.toLowerCase();
-        item.style.display = title.includes(q) ? "flex" : "none";
-      });
-    });
-
-    // Textarea auto-resize + char counter
-    msgEl.addEventListener("input", () => {
-      msgEl.style.height = "auto";
-      msgEl.style.height = Math.min(msgEl.scrollHeight, 200) + "px";
-      const len = msgEl.value.length;
-      charCount.textContent = `${len}/2000`;
-      charCount.classList.toggle("warn", len > 1800);
-    });
+    // Auto-resize textarea
+    msg.addEventListener("input", () => { msg.style.height = "auto"; msg.style.height = Math.min(msg.scrollHeight, 150) + "px"; });
 
     // Enter to send
-    msgEl.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        form.dispatchEvent(new Event("submit"));
-      }
-    });
+    msg.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); form.dispatchEvent(new Event("submit")); } });
 
-    // Format bot reply text with basic markdown
-    function formatReply(text) {
-      return text
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*(.*?)\*/g, '<em>$1</em>')
-        .replace(/^• /gm, '<span class="bullet">•</span> ')
-        .replace(/^(\d+[\.\)]) /gm, '<span class="step-num">$1</span> ')
-        .replace(/\n/g, '<br>');
-    }
-
-    function addBubble(role, text) {
-      const row = document.createElement("div");
-      row.className = `msg-row ${role}`;
-
-      const avatar = document.createElement("div");
-      avatar.className = `msg-avatar ${role}`;
-      avatar.textContent = role === "user" ? "U" : "OC";
-
-      const body = document.createElement("div");
-      body.className = "msg-body";
-
-      const label = document.createElement("div");
-      label.className = "msg-label";
-      label.textContent = role === "user" ? "You" : "Office Calm";
-
-      const content = document.createElement("div");
-      content.className = "msg-content";
-      if (role === "assistant") {
-        content.innerHTML = formatReply(text);
-      } else {
-        content.textContent = text;
-      }
-
-      body.appendChild(label);
-      body.appendChild(content);
-      row.appendChild(avatar);
-      row.appendChild(body);
-      chatEl.appendChild(row);
-      chatEl.scrollTop = chatEl.scrollHeight;
-      return row;
+    function addMsg(role, text) {
+      const div = document.createElement("div");
+      div.className = "msg " + role;
+      div.innerHTML = `<div class="msg-avatar">${role === "user" ? "U" : "🧘"}</div><div class="msg-text"><b>${role === "user" ? "You" : "Office Calm"}</b><p>${text.replace(/\n/g, "<br>")}</p></div>`;
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight;
     }
 
     async function loadSessions() {
       try {
-        const res = await fetch("/api/sessions");
-        const data = await res.json();
+        const r = await (await fetch("/api/sessions")).json();
         sessionList.innerHTML = "";
-
-        if (data.sessions && data.sessions.length > 0) {
-          data.sessions.forEach(s => {
-            const div = document.createElement("div");
-            div.className = "session-item" + (s.session_id === currentSessionId ? " active" : "");
-
-            const icon = document.createElement("span");
-            icon.className = "session-icon";
-            icon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>';
-
-            const titleSpan = document.createElement("span");
-            titleSpan.className = "session-title";
-            titleSpan.textContent = s.title || "New Chat";
-
-            const delBtn = document.createElement("button");
-            delBtn.className = "session-del";
-            delBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>';
-            delBtn.title = "Delete chat";
-            delBtn.onclick = async (ev) => {
-              ev.stopPropagation();
-              if (confirm("Delete this chat?")) {
-                await fetch(`/api/sessions/${s.session_id}`, { method: "DELETE" });
-                if (currentSessionId === s.session_id) {
-                  startNewChat();
-                } else {
-                  loadSessions();
-                }
-              }
-            };
-
-            div.appendChild(icon);
-            div.appendChild(titleSpan);
-            div.appendChild(delBtn);
-            div.onclick = () => {
-              loadSession(s.session_id);
-              if (window.innerWidth <= 768) {
-                sidebar.classList.remove("open");
-                overlay.classList.remove("show");
-              }
-            };
-            sessionList.appendChild(div);
-          });
-        } else {
-          sessionList.innerHTML = '<div class="no-sessions">No conversations yet</div>';
-        }
-      } catch (e) {
-        console.error("Could not load sessions", e);
-      }
+        (r.sessions || []).forEach(s => {
+          const d = document.createElement("div");
+          d.className = "session" + (s.session_id === currentSessionId ? " active" : "");
+          d.innerHTML = `<span>${s.title || "New Chat"}</span><button class="del-btn" title="Delete">✕</button>`;
+          d.querySelector(".del-btn").onclick = async (e) => { e.stopPropagation(); if(confirm("Delete?")) { await fetch("/api/sessions/" + s.session_id, {method:"DELETE"}); if(currentSessionId === s.session_id) startNew(); else loadSessions(); }};
+          d.onclick = () => loadSession(s.session_id);
+          sessionList.appendChild(d);
+        });
+      } catch(e) {}
     }
 
-    async function loadSession(sessionId) {
-      currentSessionId = sessionId;
-      chatEl.innerHTML = "";
+    async function loadSession(sid) {
+      currentSessionId = sid;
+      chat.innerHTML = "";
       loadSessions();
       try {
-        const histRes = await fetch(`/api/sessions/${sessionId}/history`);
-        const histData = await histRes.json();
-        if (histData.messages) {
-          histData.messages.forEach(m => {
-            if (m.role === "user" || m.role === "assistant") {
-              addBubble(m.role, m.content);
-            }
-          });
-        }
-      } catch (e) {
-        console.error(e);
-      }
+        const r = await (await fetch("/api/sessions/" + sid + "/history")).json();
+        (r.messages || []).forEach(m => { if(m.role === "user" || m.role === "assistant") addMsg(m.role, m.content); });
+      } catch(e) {}
     }
 
-    function useChip(text) {
-      msgEl.value = text;
-      msgEl.dispatchEvent(new Event("input"));
-      msgEl.focus();
-    }
+    function useChip(text) { msg.value = text; msg.focus(); }
 
-    const welcomeHTML = `
-      <div class="welcome-screen" id="welcomeScreen">
-        <div class="welcome-glow"></div>
-        <div class="welcome-icon">🧘‍♂️</div>
-        <h1 class="welcome-title">How can I help you today?</h1>
-        <p class="welcome-subtitle">I'm here to support you with workplace stress, burnout, and office conflicts.</p>
-        <div class="scope-tags">
-          <span class="scope-tag">😤 Stress & Anxiety</span>
-          <span class="scope-tag">👔 Boss Conflicts</span>
-          <span class="scope-tag">🔥 Burnout</span>
-          <span class="scope-tag">🤝 Team Issues</span>
-        </div>
-        <div class="chips-grid">
-          <button class="chip-btn" onclick="useChip('My boss shouted at me today')"><span class="chip-icon">😠</span><span class="chip-text">My boss shouted at me today</span></button>
-          <button class="chip-btn" onclick="useChip('I\\'m overwhelmed with deadlines')"><span class="chip-icon">😰</span><span class="chip-text">I'm overwhelmed with deadlines</span></button>
-          <button class="chip-btn" onclick="useChip('Conflict with a teammate')"><span class="chip-icon">🤝</span><span class="chip-text">Conflict with a teammate</span></button>
-          <button class="chip-btn" onclick="useChip('I feel burned out')"><span class="chip-icon">🔥</span><span class="chip-text">I feel burned out</span></button>
-        </div>
-      </div>`;
-
-    function startNewChat() {
+    function startNew() {
       currentSessionId = null;
-      chatEl.innerHTML = welcomeHTML;
+      chat.innerHTML = `<div class="welcome" id="welcome"><div class="welcome-emoji">🧘‍♂️</div><h2>How can I help you today?</h2><p>I only help with office stress, burnout & workplace conflicts.</p><div class="chips"><button onclick="useChip('My boss shouted at me')">😠 My boss shouted at me</button><button onclick="useChip('I feel burned out')">🔥 I feel burned out</button><button onclick="useChip('Conflict with a teammate')">🤝 Conflict with a teammate</button><button onclick="useChip('Overwhelmed with deadlines')">😰 Overwhelmed with deadlines</button></div></div>`;
       loadSessions();
-      if (window.innerWidth <= 768) {
-        sidebar.classList.remove("open");
-        overlay.classList.remove("show");
-      }
+      sidebar.classList.remove("open"); overlay.classList.remove("show");
     }
 
-    newChatBtn.addEventListener("click", startNewChat);
+    document.getElementById("newChatBtn").onclick = startNew;
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const text = msgEl.value.trim();
+      const text = msg.value.trim();
       if (!text) return;
-      if (text.length > 2000) {
-        alert("Message too long! Maximum 2000 characters.");
-        return;
-      }
+      msg.value = ""; msg.style.height = "auto";
 
-      msgEl.value = "";
-      msgEl.style.height = "auto";
-      charCount.textContent = "0/2000";
-      charCount.classList.remove("warn");
+      const w = document.getElementById("welcome"); if(w) w.remove();
+      addMsg("user", text);
 
-      // Remove welcome screen
-      const welcome = document.getElementById("welcomeScreen");
-      if (welcome) welcome.remove();
-
-      addBubble("user", text);
-
-      // Typing indicator
-      const thinkingRow = document.createElement("div");
-      thinkingRow.className = "msg-row assistant";
-      thinkingRow.innerHTML = `
-        <div class="msg-avatar assistant">OC</div>
-        <div class="msg-body">
-          <div class="msg-label">Office Calm</div>
-          <div class="msg-content typing-indicator">
-            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-          </div>
-        </div>`;
-      chatEl.appendChild(thinkingRow);
-      chatEl.scrollTop = chatEl.scrollHeight;
-
+      // Typing dots
+      const dots = document.createElement("div");
+      dots.className = "msg assistant";
+      dots.innerHTML = '<div class="msg-avatar">🧘</div><div class="msg-text"><b>Office Calm</b><p class="dots"><span>.</span><span>.</span><span>.</span></p></div>';
+      chat.appendChild(dots); chat.scrollTop = chat.scrollHeight;
       sendBtn.disabled = true;
 
       try {
-        const res = await fetch("/api/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            message: text,
-            session_id: currentSessionId || ""
-          })
-        });
-        const data = await res.json();
-        thinkingRow.remove();
-
-        if (data.session_id) currentSessionId = data.session_id;
+        const r = await (await fetch("/api/chat", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({message: text, session_id: currentSessionId || ""}) })).json();
+        dots.remove();
+        if (r.session_id) currentSessionId = r.session_id;
         loadSessions();
-
-        if (data.error) {
-          addBubble("assistant", "⚠️ " + data.error);
-        } else {
-          addBubble("assistant", data.reply);
-        }
-      } catch (err) {
-        thinkingRow.remove();
-        addBubble("assistant", "⚠️ Connection error. Please try again.");
+        addMsg("assistant", r.error ? "⚠️ " + r.error : r.reply);
+      } catch(err) {
+        dots.remove();
+        addMsg("assistant", "⚠️ Connection error.");
       } finally {
-        sendBtn.disabled = false;
-        msgEl.focus();
+        sendBtn.disabled = false; msg.focus();
       }
     });
 
-    // Init: load most recent session or show welcome
-    async function init() {
-      try {
-        const res = await fetch("/api/sessions");
-        const data = await res.json();
-        if (data.sessions && data.sessions.length > 0) {
-          loadSession(data.sessions[0].session_id);
-        }
-      } catch (e) {}
-    }
-    init();
+    // Init
+    (async () => { try { const r = await (await fetch("/api/sessions")).json(); if(r.sessions?.length) loadSession(r.sessions[0].session_id); } catch(e){} })();
   </script>
 </body>
 </html>
