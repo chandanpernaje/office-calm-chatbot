@@ -238,6 +238,13 @@ def _offline_office_response(user_text: str) -> str:
     has_kn = bool(re.search(r"[\u0C80-\u0CFF]", t))
     has_hi = bool(re.search(r"[\u0900-\u097F]", t))
 
+    # Professional Greeting Fallback
+    greetings = ["hi", "hello", "hey", "good morning", "good afternoon", "good evening", "namaste"]
+    if any(low == g or low.startswith(g + " ") for g in greetings):
+        if has_kn: return "ನಮಸ್ಕಾರ. ನಿಮ್ಮ ಕಚೇರಿಯ ಒತ್ತಡವನ್ನು ನಿರ್ವಹಿಸಲು ನಾನು ಇಲ್ಲಿದ್ದೇನೆ. ನಿಮಗೆ ಹೇಗೆ ಸಹಾಯ ಮಾಡಲಿ?"
+        if has_hi: return "नमस्ते। मैं आपके कार्यालय के तनाव को प्रबंधित करने में आपकी सहायता के लिए यहाँ हूँ। मैं आपकी कैसे मदद कर सकता हूँ?"
+        return "Good day. I am your Office Calm professional consultant. I am here to support your workplace wellbeing and help manage professional stress. How may I assist you today?"
+
     boss_kw = ["boss", "manager", "supervisor", "shouted", "yelled", "scolded", "angry boss"]
     team_kw = ["teammate", "colleague", "coworker", "conflict", "argument", "backstab"]
     work_kw = ["too much work", "overwhelmed", "overload", "stressed", "burnout", "deadline", "pressure"]
@@ -245,49 +252,54 @@ def _offline_office_response(user_text: str) -> str:
 
     if any(kw in low for kw in crisis_kw):
         return (
-            "⚠️ URGENT: If you're thinking about harming yourself, get help now.\n\n"
-            "Crisis resources:\n"
-            "• India: AASRA 9820466726\n"
-            "• USA: 988 Suicide & Crisis Lifeline\n"
-            "• Crisis Text Line: text HOME to 741741\n\n"
-            "Please tell a trusted person and seek urgent help."
+            "⚠️ **URGENT INTERVENTION REQUIRED**\n\n"
+            "If you are experiencing a mental health crisis or thinking about self-harm, please seek professional help immediately. You are not alone.\n\n"
+            "**Crisis Resources:**\n"
+            "• India: AASRA (9820466726) or Vandrevala Foundation (9999666555)\n"
+            "• International: Please contact your local emergency services immediately.\n\n"
+            "Please reach out to a trusted professional or a friend right now."
         )
+    
     if has_kn:
-        return ("ಸರಿ. ಈಗ ತಕ್ಷಣ ಪ್ರಯತ್ನಿಸಿ:\n"
-                "1) 60 ಸೆಕೆಂಡ್ ನಿಧಾನವಾಗಿ ಉಸಿರಾಟ\n"
-                "2) ನೀರು ಕುಡಿ, 2 ನಿಮಿಷ ನಡೆ\n"
-                "3) ಕೆಲಸವನ್ನು 1-2 ಟಾಸ್ಕ್‌ಗಳಿಗೆ ಕಟ್ಟಿ\n"
-                "ನಿನ್ನ situation ಏನು? ಹೇಳು.")
+        return ("ಗೌರವಾನ್ವಿತ ಬಳಕೆದಾರರೇ, ದಯವಿಟ್ಟು ಈ ಹಂತಗಳನ್ನು ಅನುಸರಿಸಿ:\n"
+                "1) 60 ಸೆಕೆಂಡುಗಳ ಕಾಲ ದೀರ್ಘವಾಗಿ ಉಸಿರಾಡಿ.\n"
+                "2) ಸ್ವಲ್ಪ ನೀರು ಕುಡಿದು 2 ನಿಮಿಷಗಳ ಕಾಲ ವಿರಾಮ ತೆಗೆದುಕೊಳ್ಳಿ.\n"
+                "3) ನಿಮ್ಮ ಕೆಲಸದ ಆದ್ಯತೆಗಳನ್ನು ಪಟ್ಟಿ ಮಾಡಿ.\n"
+                "ನಿಮ್ಮ ಕಚೇರಿಯಲ್ಲಿ ನಿಖರವಾಗಿ ಏನಾಯಿತು ಎಂದು ನನಗೆ ತಿಳಿಸಿ.")
+                
     if has_hi:
-        return ("ठीक है। अभी तुरंत कोशिश करो:\n"
-                "1) 60 सेकंड धीरे-धीरे सांस लो\n"
-                "2) पानी पीओ, 2 मिनट चलो\n"
-                "3) काम को 1-2 काम तक सीमित करो\n"
-                "तुम्हारी स्थिति क्या है? बताओ.")
+        return ("नमस्ते। कृपया इन चरणों का पालन करें:\n"
+                "1) 60 सेकंड के लिए गहरी सांस लें।\n"
+                "2) थोड़ा पानी पिएं और 2 मिनट का ब्रेक लें।\n"
+                "3) अपने कार्यों की प्राथमिकता तय करें।\n"
+                "बताएं, आपके कार्यालय में वास्तव में क्या हुआ?")
+
     if any(kw in low for kw in boss_kw):
-        return ("I see this is a boss issue. Try:\n"
-                "1) Immediate calm: breathing, drink water, step outside\n"
-                "2) Reframe: feedback may reflect external pressure, not your worth\n"
-                "3) Reply template: 'Thanks for the feedback; I'll review and get back by [time].'\n"
-                "4) Journal facts vs feelings and discuss with a trusted person\n"
-                "5) When calm, schedule a constructive conversation")
+        return ("⚖️ **Professional Guidance: Managerial Conflict**\n\n"
+                "1) **Immediate Response:** Practice 4-7-8 breathing and maintain a neutral expression.\n"
+                "2) **Professional Boundary:** If being shouted at, calmly state: 'I want to resolve this, but I find it difficult to communicate when voices are raised. Can we discuss this in 10 minutes?'\n"
+                "3) **Actionable Step:** Document the facts of the encounter immediately in a private journal.\n"
+                "4) **Resolution:** Schedule a follow-up meeting once emotions have settled to discuss the workload or feedback constructively.")
+    
     if any(kw in low for kw in team_kw):
-        return ("I see a teammate conflict. Try:\n"
-                "1) Calm yourself (breathing, short break)\n"
-                "2) Assume intent isn't malicious; focus on the task\n"
-                "3) Private message: 'Hi [name], I noticed [issue]. Can we discuss?'\n"
-                "4) If persistent, consider involving manager/HR")
+        return ("🤝 **Professional Guidance: Colleague Conflict**\n\n"
+                "1) **Maintain Composure:** Take a short walk to reset your nervous system.\n"
+                "2) **Assume Positive Intent:** Try to separate the teammate's behavior from the professional task.\n"
+                "3) **Communication:** Request a brief 1-on-1: 'I’d like to ensure we’re aligned on [Task]. Can we sync for 5 minutes?'\n"
+                "4) **Escalation:** If the issue persists, involve your manager formally with factual evidence.")
+
     if any(kw in low for kw in work_kw):
-        return ("You seem overwhelmed. Try:\n"
-                "1) Brain dump all tasks and pick one to start\n"
-                "2) Aim for progress not perfection\n"
-                "3) Communicate priorities to your manager\n"
-                "4) Take short breaks and get social support")
-    return ("I can help with your office stress. Try:\n"
-            "• Slow breathing: inhale 4s, exhale 6s ×6\n"
-            "• Grounding (5-4-3-2-1)\n"
-            "• Do one small task for 10 minutes\n"
-            "Tell me briefly: what happened at work?")
+        return ("⏳ **Professional Guidance: Workload & Burnout**\n\n"
+                "1) **Priority Matrix:** List all tasks and identify the 'Most Important Task' (MIT).\n"
+                "2) **Communication:** Email your supervisor: 'I am currently managing [X] tasks. To ensure quality, which of these should I prioritize today?'\n"
+                "3) **Micro-breaks:** Follow the 50/10 rule—50 minutes of focus, 10 minutes of complete rest.\n"
+                "4) **Sustainability:** Ensure you disconnect completely from work emails after hours.")
+
+    return ("Greetings. I am here to assist with your professional stress management. Please consider these immediate steps:\n\n"
+            "• **Physiological Calm:** Inhale for 4 seconds, hold for 4, exhale for 8. Repeat 4 times.\n"
+            "• **Grounding:** Identify 5 things you can see around your workstation.\n"
+            "• **Prioritization:** Focus exclusively on one small task for the next 15 minutes.\n\n"
+            "Could you please describe the specific workplace situation that is concerning you?")
 
 
 # ── Gemini prompts ──
