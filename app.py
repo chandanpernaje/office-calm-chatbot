@@ -181,6 +181,10 @@ def _get_session_history(session_id: str) -> List[Dict]:
         return doc.get("messages", [])
     return []
 
+def _list_sessions() -> List[Dict]:
+    docs = _get_chat_collection().find({}, {"session_id": 1, "title": 1, "_id": 0}).sort("updated_at", -1)
+    return list(docs)
+
 
 # Load environment and configure Gemini client if key present
 load_dotenv()
