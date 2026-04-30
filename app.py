@@ -256,11 +256,12 @@ def _offline_office_response(user_text: str) -> str:
     if has_hi:
         return "हमारा AI वर्तमान में व्यस्त है। कृपया 60 सेकंड के लिए गहरी सांस लें और थोड़ा पानी पिएं। अपनी समस्या संक्षेप में बताएं।"
 
-    return ("✨ **Pro-Tip:** The AI is currently processing high demand. To manage stress right now:\n\n"
+    return ("🛑 **API Limit Reached (AI Resting)**\n\n"
+            "Our AI has reached its current processing limit. While it resets, here is a professional pro-tip to manage your stress:\n\n"
             "1. **Breathe:** Take 3 deep breaths (4s in, 8s out).\n"
             "2. **Hydrate:** Drink a glass of water.\n"
             "3. **Focus:** Pick one tiny task to do for 5 minutes.\n\n"
-            "I am ready to help—please describe your situation in one sentence.")
+            "I will be fully restored shortly. Please describe your situation in one sentence.")
 
 
 # ── Gemini prompts ──
