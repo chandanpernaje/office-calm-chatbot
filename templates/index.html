@@ -39,7 +39,19 @@
         <div class="header-title">Office Calm Chatbot</div>
       </header>
 
-      <div class="chat-container" id="chat"></div>
+      <div class="chat-container" id="chat">
+        <!-- Welcome Screen -->
+        <div class="welcome-screen" id="welcomeScreen">
+          <div class="welcome-icon">🧘‍♂️</div>
+          <h2>How can I help you today?</h2>
+          <div class="chips-grid">
+            <button class="chip-btn" onclick="useChip('My boss shouted at me today')">My boss shouted at me today</button>
+            <button class="chip-btn" onclick="useChip('I\'m overwhelmed with deadlines')">I'm overwhelmed with deadlines</button>
+            <button class="chip-btn" onclick="useChip('Conflict with a teammate')">Conflict with a teammate</button>
+            <button class="chip-btn" onclick="useChip('I feel burned out')">I feel burned out</button>
+          </div>
+        </div>
+      </div>
 
       <div class="input-area">
         <form id="form" class="input-form">
@@ -184,9 +196,25 @@
       }
     }
 
+    function useChip(text) {
+      msgEl.value = text;
+      msgEl.focus();
+    }
+
     function startNewChat() {
       currentSessionId = null;
-      chatEl.innerHTML = "";
+      chatEl.innerHTML = `
+        <div class="welcome-screen" id="welcomeScreen">
+          <div class="welcome-icon">🧘‍♂️</div>
+          <h2>How can I help you today?</h2>
+          <div class="chips-grid">
+            <button class="chip-btn" onclick="useChip('My boss shouted at me today')">My boss shouted at me today</button>
+            <button class="chip-btn" onclick="useChip('I\\'m overwhelmed with deadlines')">I'm overwhelmed with deadlines</button>
+            <button class="chip-btn" onclick="useChip('Conflict with a teammate')">Conflict with a teammate</button>
+            <button class="chip-btn" onclick="useChip('I feel burned out')">I feel burned out</button>
+          </div>
+        </div>
+      `;
       loadSessions();
       if (window.innerWidth <= 768) {
         sidebar.classList.remove("open");
@@ -203,11 +231,15 @@
       msgEl.value = "";
       msgEl.style.height = "auto";
       
+      // Remove welcome screen if present
+      const welcome = document.getElementById("welcomeScreen");
+      if (welcome) welcome.remove();
+
       addBubble("user", text);
 
       const thinkingRow = document.createElement("div");
       thinkingRow.className = "message-row assistant thinking";
-      thinkingRow.innerHTML = '<div class="avatar">OC</div><div class="message-content">Thinking...</div>';
+      thinkingRow.innerHTML = '<div class="avatar">OC</div><div class="message-content"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>';
       chatEl.appendChild(thinkingRow);
       chatEl.scrollTop = chatEl.scrollHeight;
 
