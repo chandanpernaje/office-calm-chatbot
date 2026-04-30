@@ -4,23 +4,30 @@ import re
 import json
 from typing import Any, Dict, List, Optional
 from datetime import datetime, timezone
-
 from dotenv import load_dotenv
+
+# Load env immediately
+load_dotenv()
+
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi import Body, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from pymongo import MongoClient
 
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
 MONGO_DB = os.getenv("MONGO_DB", "office_calm_db")
 
-# We will use a safe default if MONGO_URI isn't valid, or just standard localhost
+print(f"DEBUG: Connecting to MongoDB at {MONGO_URI[:20]}... DB: {MONGO_DB}")
+
 try:
     mongo_client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
     db = mongo_client[MONGO_DB]
-except Exception:
+    # Test connection
+    mongo_client.admin.command('ping')
+    print("DEBUG: MongoDB Connected successfully")
+except Exception as e:
+    print(f"DEBUG: MongoDB Connection failed: {e}")
     db = None
 
 def get_collection(name: str):
@@ -206,8 +213,7 @@ def _list_sessions() -> List[Dict]:
     return list(docs)
 
 
-# Load environment and configure Gemini client if key present
-load_dotenv()
+# GEMINI Config
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-flash" )
 _GEMINI_READY = bool(GEMINI_API_KEY)
