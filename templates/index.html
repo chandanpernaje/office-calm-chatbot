@@ -2,187 +2,107 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Office Calm Chatbot</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/static/style.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="app">
-    <div class="overlay" id="overlay"></div>
+  <div class="container">
+    <header>
+      <h1>Office Calm Chatbot</h1>
+      <p>Hidden admin analysis + Gemini response (model: {{ model }})</p>
+    </header>
 
-    <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
-      <div class="sidebar-top">
-        <button class="new-chat-btn" id="newChatBtn">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-          New Chat
-        </button>
-        <div class="search-box">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" id="searchHistory" placeholder="Search chats..." autocomplete="off">
-        </div>
-      </div>
-      <div class="session-list" id="sessionList"></div>
-      <div class="sidebar-footer">💼 Office Calm Support</div>
-    </aside>
+    <div class="chat-box" id="chat">
+      <!-- Messages go here -->
+    </div>
 
-    <!-- Main -->
-    <div class="main">
-      <div class="topbar">
-        <button class="menu-btn" id="menuBtn">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-        </button>
-        <b>Office Calm Chatbot</b>
-      </div>
-
-      <div class="chat" id="chat">
-        <div class="welcome" id="welcome">
-          <div class="welcome-emoji">🧘‍♂️</div>
-          <h2>How can I help you today?</h2>
-          <p>I only help with office stress, burnout & workplace conflicts.</p>
-          <div class="chips">
-            <button onclick="useChip('My boss shouted at me today')">😠 My boss shouted at me today</button>
-            <button onclick="useChip('I feel burned out')">🔥 I feel burned out</button>
-            <button onclick="useChip('Conflict with a teammate')">🤝 Conflict with a teammate</button>
-            <button onclick="useChip('Overwhelmed with deadlines')">😰 Overwhelmed with deadlines</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="input-area">
-        <form id="form" class="input-form">
-          <textarea id="msg" placeholder="Type your office problem... (English/Hindi/Kannada)" rows="1" maxlength="2000"></textarea>
-          <button type="submit" id="sendBtn">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-          </button>
-        </form>
-        <p class="footer-note">Office Calm can make mistakes. Focus is strictly on workplace stress.</p>
+    <div class="composer">
+      <form id="form">
+        <textarea id="msg" placeholder="Type your office problem... (Kannada/Hindi/English are OK)" rows="1" required></textarea>
+        <button type="submit" id="sendBtn">Send</button>
+      </form>
+      <div class="footer-note">
+        Notes: Your hidden analysis prompt stays on the server. The browser only sees your messages and the final reply.
       </div>
     </div>
   </div>
 
   <script>
-    let currentSessionId = null;
     const chat = document.getElementById("chat");
     const form = document.getElementById("form");
     const msg = document.getElementById("msg");
     const sendBtn = document.getElementById("sendBtn");
-    const sidebar = document.getElementById("sidebar");
-    const overlay = document.getElementById("overlay");
-    const sessionList = document.getElementById("sessionList");
-    const searchHistory = document.getElementById("searchHistory");
-
-    // Sidebar toggle
-    document.getElementById("menuBtn").onclick = () => { sidebar.classList.toggle("open"); overlay.classList.toggle("show"); };
-    overlay.onclick = () => { sidebar.classList.remove("open"); overlay.classList.remove("show"); };
-
-    // Search filter
-    searchHistory.addEventListener("input", (e) => {
-      const q = e.target.value.toLowerCase();
-      document.querySelectorAll(".session-item").forEach(item => {
-        item.style.display = item.textContent.toLowerCase().includes(q) ? "flex" : "none";
-      });
+    
+    // Auto-resize textarea
+    msg.addEventListener("input", () => {
+      msg.style.height = "auto";
+      msg.style.height = Math.min(msg.scrollHeight, 120) + "px";
     });
 
-    // Auto-resize textarea
-    msg.addEventListener("input", () => { msg.style.height = "auto"; msg.style.height = Math.min(msg.scrollHeight, 150) + "px"; });
-
     // Enter to send
-    msg.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); form.dispatchEvent(new Event("submit")); } });
+    msg.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        form.dispatchEvent(new Event("submit"));
+      }
+    });
 
     function addMsg(role, text) {
       const row = document.createElement("div");
-      row.className = "msg-row";
-
-      const avatar = document.createElement("div");
-      avatar.className = "avatar " + role;
-      avatar.textContent = role === "user" ? "U" : "OC";
-
-      const content = document.createElement("div");
-      content.className = "content";
-      content.innerHTML = text.replace(/\n/g, "<br>");
-
-      row.appendChild(avatar);
-      row.appendChild(content);
+      row.className = "msg-row " + role;
+      
+      const bubble = document.createElement("div");
+      bubble.className = "bubble";
+      bubble.innerHTML = text.replace(/\n/g, "<br>");
+      
+      row.appendChild(bubble);
       chat.appendChild(row);
       chat.scrollTop = chat.scrollHeight;
     }
-
-    async function loadSessions() {
-      try {
-        const r = await (await fetch("/api/sessions")).json();
-        sessionList.innerHTML = "";
-        (r.sessions || []).forEach(s => {
-          const d = document.createElement("div");
-          d.className = "session-item" + (s.session_id === currentSessionId ? " active" : "");
-          const title = document.createElement("span");
-          title.textContent = s.title || "New Chat";
-          const del = document.createElement("button");
-          del.className = "del-btn";
-          del.textContent = "✕";
-          del.onclick = async (e) => { e.stopPropagation(); if(confirm("Delete?")) { await fetch("/api/sessions/" + s.session_id, {method:"DELETE"}); if(currentSessionId === s.session_id) startNew(); else loadSessions(); }};
-          d.appendChild(title);
-          d.appendChild(del);
-          d.onclick = () => { loadSession(s.session_id); if(window.innerWidth <= 768) { sidebar.classList.remove("open"); overlay.classList.remove("show"); } };
-          sessionList.appendChild(d);
-        });
-      } catch(e) {}
-    }
-
-    async function loadSession(sid) {
-      currentSessionId = sid;
-      chat.innerHTML = "";
-      loadSessions();
-      try {
-        const r = await (await fetch("/api/sessions/" + sid + "/history")).json();
-        (r.messages || []).forEach(m => { if(m.role === "user" || m.role === "assistant") addMsg(m.role, m.content); });
-      } catch(e) {}
-    }
-
-    function useChip(text) { msg.value = text; msg.focus(); }
-
-    function startNew() {
-      currentSessionId = null;
-      chat.innerHTML = '<div class="welcome" id="welcome"><div class="welcome-emoji">🧘‍♂️</div><h2>How can I help you today?</h2><p>I only help with office stress, burnout & workplace conflicts.</p><div class="chips"><button onclick="useChip(\'My boss shouted at me today\')">😠 My boss shouted at me today</button><button onclick="useChip(\'I feel burned out\')">🔥 I feel burned out</button><button onclick="useChip(\'Conflict with a teammate\')">🤝 Conflict with a teammate</button><button onclick="useChip(\'Overwhelmed with deadlines\')">😰 Overwhelmed with deadlines</button></div></div>';
-      loadSessions();
-      sidebar.classList.remove("open"); overlay.classList.remove("show");
-    }
-
-    document.getElementById("newChatBtn").onclick = startNew;
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const text = msg.value.trim();
       if (!text) return;
-      msg.value = ""; msg.style.height = "auto";
-
-      const w = document.getElementById("welcome"); if(w) w.remove();
+      
+      msg.value = "";
+      msg.style.height = "auto";
+      
       addMsg("user", text);
-
-      // Typing dots
-      const dots = document.createElement("div");
-      dots.className = "msg-row";
-      dots.innerHTML = '<div class="avatar assistant">OC</div><div class="content dots"><span>.</span><span>.</span><span>.</span></div>';
-      chat.appendChild(dots); chat.scrollTop = chat.scrollHeight;
+      
+      // Thinking indicator
+      const dotsRow = document.createElement("div");
+      dotsRow.className = "msg-row assistant";
+      dotsRow.innerHTML = '<div class="bubble thinking">...</div>';
+      chat.appendChild(dotsRow);
+      chat.scrollTop = chat.scrollHeight;
+      
       sendBtn.disabled = true;
 
       try {
-        const r = await (await fetch("/api/chat", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({message: text, session_id: currentSessionId || ""}) })).json();
-        dots.remove();
-        if (r.session_id) currentSessionId = r.session_id;
-        loadSessions();
-        addMsg("assistant", r.error ? "⚠️ " + r.error : r.reply);
-      } catch(err) {
-        dots.remove();
-        addMsg("assistant", "⚠️ Connection error.");
+        const res = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: text })
+        });
+        const data = await res.json();
+        dotsRow.remove();
+        
+        if (data.error) {
+          addMsg("assistant", "Error: " + data.error);
+        } else {
+          addMsg("assistant", data.reply);
+        }
+      } catch (err) {
+        dotsRow.remove();
+        addMsg("assistant", "Connection error.");
       } finally {
-        sendBtn.disabled = false; msg.focus();
+        sendBtn.disabled = false;
+        msg.focus();
       }
     });
-
-    // Init
-    (async () => { try { const r = await (await fetch("/api/sessions")).json(); if(r.sessions?.length) loadSession(r.sessions[0].session_id); } catch(e){} })();
   </script>
 </body>
 </html>
