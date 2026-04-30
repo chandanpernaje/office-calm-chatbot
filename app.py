@@ -142,11 +142,8 @@ def _is_office_stress_topic(text: str) -> bool:
     if on_topic_count > 0:
         return True
 
-    # Short messages with no clear indicator — allow (could be follow-up)
-    if len(low.split()) <= 5:
-        return True
-
-    return False
+    # Short messages without indicators are passed to the AI to decide.
+    return True
 
 
 OFF_TOPIC_RESPONSE = (
@@ -307,12 +304,6 @@ Do not include any extra keys.
 """.strip()
 
 DEVELOPER_RESPONSE_PROMPT = """
-You are a helpful chatbot EXCLUSIVELY for office workers dealing with workplace stress, anxiety, and frustration.
-
-STRICT RULES:
-- ONLY answer questions about office stress, workplace conflicts, work-life balance, burnout, career pressure, and workplace mental health.
-- If a user asks about ANYTHING not related to office/workplace stress (like recipes, weather, movies, coding, general knowledge, etc.), politely redirect them by saying you can only help with office stress topics.
-- Be brief, practical, and kind.
 - IMPORTANT STRICT RULE: If the internal analysis flags the message as 'is_off_topic' (true), you MUST politely but firmly decline to answer. Explain that you are an Office Calm chatbot designed ONLY to help with workplace stress, burnout, office conflicts, and mental health at work. DO NOT provide the answer to their off-topic query.
 - Give MULTIPLE solutions (at least 3-4 different approaches) based on psychological principles:
     * Immediate calming techniques (breathing, grounding, physical movement)
@@ -395,13 +386,15 @@ async def gemini_reply(user_text: str, analysis: Dict[str, Any], history: Option
     )
 
     if history:
-        for msg in history[-6:]:
+        for msg in history[-10:]:
             role = msg.get("role", "")
             content = (msg.get("content") or "").strip()
-            if role in ("user", "assistant") and content:
-                convo_parts.append({"role": "user", "parts": [f"{role.upper()}: {content}"]})
+            if role == "user" and content:
+                convo_parts.append({"role": "user", "parts": [content]})
+            elif role == "assistant" and content:
+                convo_parts.append({"role": "model", "parts": [content]})
 
-    convo_parts.append({"role": "user", "parts": [f"USER: {user_text}"]})
+    convo_parts.append({"role": "user", "parts": [f"USER CURRENT MESSAGE: {user_text}"]})
 
     resp = await m.generate_content_async(convo_parts)
     return (resp.text or "").strip()
@@ -497,12 +490,21 @@ async def chat(payload: Dict[str, Any]):
 
     try:
         analysis = await gemini_admin_analyze(user_text)
+        
+        # STRICT VALIDATION: If AI determines it's off-topic, block it immediately
+        if analysis.get("is_off_topic"):
+            _save_message(session_id, "assistant", OFF_TOPIC_RESPONSE)
+            return JSONResponse({"reply": OFF_TOPIC_RESPONSE, "session_id": session_id, "off_topic": True})
+
         reply = await gemini_reply(user_text, analysis, history=db_history)
     except NotFound:
         global GEMINI_MODEL
         GEMINI_MODEL = _select_working_model_name(GEMINI_MODEL)
         try:
             analysis = await gemini_admin_analyze(user_text)
+            if analysis.get("is_off_topic"):
+                _save_message(session_id, "assistant", OFF_TOPIC_RESPONSE)
+                return JSONResponse({"reply": OFF_TOPIC_RESPONSE, "session_id": session_id, "off_topic": True})
             reply = await gemini_reply(user_text, analysis, history=db_history)
         except ResourceExhausted:
             reply = _offline_office_response(user_text)
