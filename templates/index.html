@@ -87,6 +87,9 @@
     const msg = document.getElementById("msg");
     const sendBtn = document.getElementById("sendBtn");
     
+    // Store session ID to maintain chat history
+    let currentSessionId = null;
+    
     // Auto-resize textarea
     msg.addEventListener("input", () => {
       msg.style.height = "auto";
@@ -145,13 +148,23 @@
       sendBtn.disabled = true;
 
       try {
+        const payload = { message: text };
+        if (currentSessionId) {
+          payload.session_id = currentSessionId;
+        }
+
         const res = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: text })
+          body: JSON.stringify(payload)
         });
         const data = await res.json();
         dotsRow.remove();
+        
+        // Save the session ID so context is remembered
+        if (data.session_id) {
+          currentSessionId = data.session_id;
+        }
         
         if (data.error) {
           addMsg("assistant", "Error: " + data.error);
