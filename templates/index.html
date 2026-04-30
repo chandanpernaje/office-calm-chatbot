@@ -8,10 +8,22 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="app-container">
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <h2>Chat History</h2>
+      <button class="new-chat-btn" id="newChatBtn">New Chat</button>
+    </div>
+    <div class="session-list" id="sessionList"></div>
+  </div>
+
+  <div class="app-container" id="appContainer">
     <header class="header">
-      <h1 class="title">Office Calm Chatbot</h1>
-      <p class="subtitle">Hidden admin analysis + Gemini response (model: {{ model | default('gemini-1.5-flash') }})</p>
+      <button class="menu-btn" id="menuBtn">☰</button>
+      <div class="header-titles">
+        <h1 class="title">Office Calm Chatbot</h1>
+        <p class="subtitle">Hidden admin analysis + Gemini response (model: {{ model | default('gemini-1.5-flash') }})</p>
+      </div>
     </header>
 
     <div class="chat-container" id="chat"></div>
@@ -31,6 +43,17 @@
     const form = document.getElementById("form");
     const msgEl = document.getElementById("msg");
     const sendBtn = document.getElementById("sendBtn");
+    
+    // Sidebar elements
+    const sidebar = document.getElementById("sidebar");
+    const menuBtn = document.getElementById("menuBtn");
+    const newChatBtn = document.getElementById("newChatBtn");
+    const sessionList = document.getElementById("sessionList");
+
+    // Toggle sidebar
+    menuBtn.addEventListener("click", () => {
+      sidebar.classList.toggle("open");
+    });
 
     // Auto-resize textarea
     msgEl.addEventListener("input", () => {
@@ -60,26 +83,75 @@
       return wrapper;
     }
 
-    async function loadInitialSession() {
+    async function loadSessions() {
       try {
         const res = await fetch("/api/sessions");
         const data = await res.json();
+        sessionList.innerHTML = "";
+        
         if (data.sessions && data.sessions.length > 0) {
-          currentSessionId = data.sessions[0].session_id;
-          const histRes = await fetch(`/api/sessions/${currentSessionId}/history`);
-          const histData = await histRes.json();
-          if (histData.messages) {
-            histData.messages.forEach(m => {
-              if(m.role === "user" || m.role === "assistant") {
-                addBubble(m.role, m.content);
+          data.sessions.forEach(s => {
+            const div = document.createElement("div");
+            div.className = "session-item" + (s.session_id === currentSessionId ? " active" : "");
+            
+            const titleSpan = document.createElement("span");
+            titleSpan.className = "session-title";
+            titleSpan.textContent = s.title || "New Chat";
+            
+            const delBtn = document.createElement("button");
+            delBtn.className = "session-del";
+            delBtn.textContent = "✕";
+            delBtn.onclick = async (ev) => {
+              ev.stopPropagation();
+              if(confirm("Delete this chat?")) {
+                await fetch(`/api/sessions/${s.session_id}`, { method: "DELETE" });
+                if(currentSessionId === s.session_id) {
+                  startNewChat();
+                } else {
+                  loadSessions();
+                }
               }
-            });
-          }
+            };
+            
+            div.appendChild(titleSpan);
+            div.appendChild(delBtn);
+            div.onclick = () => loadSession(s.session_id);
+            sessionList.appendChild(div);
+          });
         }
-      } catch (e) {
-        console.error("Could not load history", e);
+      } catch(e) {
+        console.error("Could not load sessions", e);
       }
     }
+
+    async function loadSession(sessionId) {
+      currentSessionId = sessionId;
+      chatEl.innerHTML = "";
+      sidebar.classList.remove("open");
+      loadSessions(); // update active state
+      try {
+        const histRes = await fetch(`/api/sessions/${sessionId}/history`);
+        const histData = await histRes.json();
+        if (histData.messages) {
+          histData.messages.forEach(m => {
+            if(m.role === "user" || m.role === "assistant") {
+              addBubble(m.role, m.content);
+            }
+          });
+        }
+      } catch(e) {
+        console.error(e);
+      }
+    }
+
+    function startNewChat() {
+      currentSessionId = null;
+      chatEl.innerHTML = "";
+      sidebar.classList.remove("open");
+      loadSessions();
+    }
+
+    newChatBtn.addEventListener("click", startNewChat);
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -115,6 +187,7 @@
         thinkingWrapper.remove();
         
         if (data.session_id) currentSessionId = data.session_id;
+        loadSessions(); // refresh the list to show new chat title
         
         if (data.error) {
           addBubble("assistant", "Error: " + data.error);
@@ -130,7 +203,17 @@
       }
     });
 
-    loadInitialSession();
+    // Auto load most recent session on startup
+    async function init() {
+      try {
+        const res = await fetch("/api/sessions");
+        const data = await res.json();
+        if (data.sessions && data.sessions.length > 0) {
+          loadSession(data.sessions[0].session_id);
+        }
+      } catch(e) {}
+    }
+    init();
   </script>
 </body>
 </html>
