@@ -3,7 +3,7 @@ from typing import Any
 from pymongo import MongoClient
 
 _MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
-_MONGO_DB = os.getenv("MONGO_DB", "office_procurement")
+_MONGO_DB = os.getenv("MONGO_DB", "office_calm_chatbot")
 
 _client: MongoClient | None = None
 
