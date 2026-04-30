@@ -18,25 +18,29 @@
     /* ── Sidebar ── */
     .sidebar {
       width: 260px;
-      background-color: #202123;
-      border-right: 1px solid rgba(255,255,255,0.05);
+      background-color: #1a1a20;
+      border-right: 1px solid rgba(255,255,255,0.08);
       display: flex;
       flex-direction: column;
       height: 100vh;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+      z-index: 10;
     }
     .new-chat-btn {
       margin: 15px;
       padding: 12px;
-      background-color: transparent;
-      border: 1px solid rgba(255,255,255,0.2);
+      background: linear-gradient(135deg, #6b8afd 0%, #5474f0 100%);
+      border: none;
       color: white;
       border-radius: 8px;
       cursor: pointer;
-      text-align: left;
+      text-align: center;
+      font-weight: 600;
       font-size: 14px;
-      transition: background 0.2s;
+      transition: all 0.2s;
+      box-shadow: 0 4px 10px rgba(107, 138, 253, 0.2);
     }
-    .new-chat-btn:hover { background-color: rgba(255,255,255,0.05); }
+    .new-chat-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 14px rgba(107, 138, 253, 0.4); }
     
     .history-list {
       flex: 1;
