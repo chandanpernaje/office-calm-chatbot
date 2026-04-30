@@ -264,7 +264,8 @@
     const historyList = document.getElementById("historyList");
     const newChatBtn = document.getElementById("newChatBtn");
     
-    let currentSessionId = null;
+    // Restore session from localStorage if available
+    let currentSessionId = localStorage.getItem("lastSessionId");
 
     async function loadSessions() {
       try {
@@ -292,6 +293,14 @@
           div.onclick = () => loadSessionHistory(s.session_id);
           historyList.appendChild(div);
         });
+
+        // Auto-load latest session if none is selected
+        if (!currentSessionId && data.sessions.length > 0) {
+           loadSessionHistory(data.sessions[0].session_id);
+        } else if (currentSessionId && chat.innerHTML === "") {
+           // Reload history for the persisted session
+           loadSessionHistory(currentSessionId);
+        }
       } catch (err) { console.error(err); }
     }
 
@@ -301,6 +310,7 @@
         await fetch(`/api/sessions/${id}`, { method: "DELETE" });
         if (currentSessionId === id) {
           currentSessionId = null;
+          localStorage.removeItem("lastSessionId");
           chat.innerHTML = "";
         }
         loadSessions();
@@ -309,17 +319,23 @@
 
     async function loadSessionHistory(sessionId) {
       currentSessionId = sessionId;
+      localStorage.setItem("lastSessionId", sessionId);
       chat.innerHTML = "";
-      loadSessions();
+      // Refresh sidebar to show active state
+      const items = historyList.querySelectorAll(".session-item");
+      items.forEach(i => i.classList.remove("active"));
+      
       try {
         const res = await fetch(`/api/sessions/${sessionId}/history`);
         const data = await res.json();
         data.messages.forEach(m => addMsg(m.role, m.content));
       } catch (err) { console.error(err); }
+      loadSessions(); 
     }
 
     newChatBtn.onclick = () => {
       currentSessionId = null;
+      localStorage.removeItem("lastSessionId");
       chat.innerHTML = "";
       loadSessions();
       msg.focus();
