@@ -49,14 +49,31 @@ body {
   padding: 20px;
   border-bottom: 1px solid #3c4043;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  gap: 15px;
 }
 
 .sidebar-header h2 {
   font-size: 16px;
   font-weight: 500;
   color: var(--text-color);
+}
+
+.search-history-input {
+  width: 100%;
+  background-color: transparent;
+  border: 1px solid #3c4043;
+  color: var(--text-color);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.search-history-input:focus {
+  border-color: var(--title-color);
 }
 
 .new-chat-btn {

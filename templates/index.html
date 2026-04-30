@@ -11,8 +11,11 @@
   <!-- Sidebar -->
   <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
-      <h2>Chat History</h2>
-      <button class="new-chat-btn" id="newChatBtn">New Chat</button>
+      <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+        <h2>Chat History</h2>
+        <button class="new-chat-btn" id="newChatBtn">New Chat</button>
+      </div>
+      <input type="text" id="searchHistory" class="search-history-input" placeholder="Search history..." autocomplete="off">
     </div>
     <div class="session-list" id="sessionList"></div>
   </div>
@@ -49,10 +52,20 @@
     const menuBtn = document.getElementById("menuBtn");
     const newChatBtn = document.getElementById("newChatBtn");
     const sessionList = document.getElementById("sessionList");
+    const searchHistory = document.getElementById("searchHistory");
 
     // Toggle sidebar
     menuBtn.addEventListener("click", () => {
       sidebar.classList.toggle("open");
+    });
+
+    // Search history filter
+    searchHistory.addEventListener("input", (e) => {
+      const q = e.target.value.toLowerCase();
+      document.querySelectorAll(".session-item").forEach(item => {
+        const title = item.querySelector(".session-title").textContent.toLowerCase();
+        item.style.display = title.includes(q) ? "flex" : "none";
+      });
     });
 
     // Auto-resize textarea
