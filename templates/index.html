@@ -14,7 +14,7 @@
     <nav class="sidebar" id="sidebar">
       <div class="sidebar-top">
         <button class="new-chat-btn" id="newChatBtn">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path><line x1="9" y1="10" x2="15" y2="10"></line><line x1="12" y1="7" x2="12" y2="13"></line></svg>
           New Chat
         </button>
         <div class="search-box">
@@ -57,7 +57,7 @@
         <form id="form" class="input-form">
           <textarea id="msg" placeholder="Type your office problem... (English/Hindi/Kannada)" rows="1" required></textarea>
           <button type="submit" id="sendBtn">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
           </button>
         </form>
         <p class="footer-note">Office Calm can make mistakes. Focus is strictly on workplace stress.</p>
@@ -120,7 +120,7 @@
       inner.className = "message-inner";
 
       const avatar = document.createElement("div");
-      avatar.className = "avatar";
+      avatar.className = `avatar ${role}`;
       avatar.textContent = role === "user" ? "U" : "OC";
 
       const content = document.createElement("div");
@@ -153,7 +153,7 @@
             
             const delBtn = document.createElement("button");
             delBtn.className = "session-del";
-            delBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
+            delBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>';
             delBtn.onclick = async (ev) => {
               ev.stopPropagation();
               if(confirm("Delete this chat?")) {
@@ -244,7 +244,7 @@
 
       const thinkingRow = document.createElement("div");
       thinkingRow.className = "message-row assistant thinking";
-      thinkingRow.innerHTML = '<div class="message-inner"><div class="avatar">OC</div><div class="message-content"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div>';
+      thinkingRow.innerHTML = '<div class="message-inner"><div class="avatar assistant">OC</div><div class="message-content"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div>';
       chatEl.appendChild(thinkingRow);
       chatEl.scrollTop = chatEl.scrollHeight;
 
