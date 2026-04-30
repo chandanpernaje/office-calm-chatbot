@@ -8,36 +8,48 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
-  <!-- Sidebar -->
-  <div class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-        <h2>Chat History</h2>
-        <button class="new-chat-btn" id="newChatBtn">New Chat</button>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-top">
+        <button class="new-chat-btn" id="newChatBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          New Chat
+        </button>
+        <div class="search-box">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="searchHistory" placeholder="Search chats..." autocomplete="off">
+        </div>
       </div>
-      <input type="text" id="searchHistory" class="search-history-input" placeholder="Search history..." autocomplete="off">
-    </div>
-    <div class="session-list" id="sessionList"></div>
-  </div>
-
-  <div class="app-container" id="appContainer">
-    <header class="header">
-      <button class="menu-btn" id="menuBtn">☰</button>
-      <div class="header-titles">
-        <h1 class="title">Office Calm Chatbot</h1>
-        <p class="subtitle">Hidden admin analysis + Gemini response (model: {{ model | default('gemini-1.5-flash') }})</p>
+      
+      <div class="session-list" id="sessionList"></div>
+      
+      <div class="sidebar-bottom">
+        <p>💼 Office Calm Support</p>
       </div>
-    </header>
+    </nav>
 
-    <div class="chat-container" id="chat"></div>
+    <!-- Main Content -->
+    <main class="main-content">
+      <header class="header">
+        <button class="menu-btn" id="menuBtn">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div class="header-title">Office Calm Chatbot</div>
+      </header>
 
-    <div class="input-container">
-      <form id="form" class="input-form" autocomplete="off">
-        <textarea id="msg" placeholder="Type your office problem... (Kannada/Hindi/English are OK)" rows="1" required></textarea>
-        <button type="submit" id="sendBtn">Send</button>
-      </form>
-      <p class="footer-note">Notes: Your hidden analysis prompt stays on the server. The browser only sees your messages and the final reply.</p>
-    </div>
+      <div class="chat-container" id="chat"></div>
+
+      <div class="input-area">
+        <form id="form" class="input-form">
+          <textarea id="msg" placeholder="Type your office problem... (English/Hindi/Kannada)" rows="1" required></textarea>
+          <button type="submit" id="sendBtn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </form>
+        <p class="footer-note">Office Calm can make mistakes. Focus is strictly on workplace stress.</p>
+      </div>
+    </main>
   </div>
 
   <script>
@@ -71,7 +83,7 @@
     // Auto-resize textarea
     msgEl.addEventListener("input", () => {
       msgEl.style.height = "auto";
-      msgEl.style.height = Math.min(msgEl.scrollHeight, 120) + "px";
+      msgEl.style.height = Math.min(msgEl.scrollHeight, 200) + "px";
     });
 
     // Enter to send
@@ -83,17 +95,22 @@
     });
 
     function addBubble(role, text) {
-      const wrapper = document.createElement("div");
-      wrapper.className = `message-wrapper ${role}`;
+      const row = document.createElement("div");
+      row.className = `message-row ${role}`;
 
-      const bubble = document.createElement("div");
-      bubble.className = `bubble ${role}`;
-      bubble.textContent = text;
+      const avatar = document.createElement("div");
+      avatar.className = "avatar";
+      avatar.textContent = role === "user" ? "You" : "OC";
 
-      wrapper.appendChild(bubble);
-      chatEl.appendChild(wrapper);
+      const content = document.createElement("div");
+      content.className = "message-content";
+      content.textContent = text;
+
+      row.appendChild(avatar);
+      row.appendChild(content);
+      chatEl.appendChild(row);
       chatEl.scrollTop = chatEl.scrollHeight;
-      return wrapper;
+      return row;
     }
 
     async function loadSessions() {
@@ -113,7 +130,7 @@
             
             const delBtn = document.createElement("button");
             delBtn.className = "session-del";
-            delBtn.textContent = "✕";
+            delBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
             delBtn.onclick = async (ev) => {
               ev.stopPropagation();
               if(confirm("Delete this chat?")) {
@@ -128,7 +145,12 @@
             
             div.appendChild(titleSpan);
             div.appendChild(delBtn);
-            div.onclick = () => loadSession(s.session_id);
+            div.onclick = () => {
+              loadSession(s.session_id);
+              if (window.innerWidth <= 768) {
+                sidebar.classList.remove("open");
+              }
+            };
             sessionList.appendChild(div);
           });
         }
@@ -140,7 +162,6 @@
     async function loadSession(sessionId) {
       currentSessionId = sessionId;
       chatEl.innerHTML = "";
-      sidebar.classList.remove("open");
       loadSessions(); // update active state
       try {
         const histRes = await fetch(`/api/sessions/${sessionId}/history`);
@@ -160,8 +181,10 @@
     function startNewChat() {
       currentSessionId = null;
       chatEl.innerHTML = "";
-      sidebar.classList.remove("open");
       loadSessions();
+      if (window.innerWidth <= 768) {
+        sidebar.classList.remove("open");
+      }
     }
 
     newChatBtn.addEventListener("click", startNewChat);
@@ -176,13 +199,10 @@
       
       addBubble("user", text);
 
-      const thinkingWrapper = document.createElement("div");
-      thinkingWrapper.className = "message-wrapper assistant thinking-wrapper";
-      const thinkingText = document.createElement("div");
-      thinkingText.className = "thinking-text";
-      thinkingText.textContent = "Thinking...";
-      thinkingWrapper.appendChild(thinkingText);
-      chatEl.appendChild(thinkingWrapper);
+      const thinkingRow = document.createElement("div");
+      thinkingRow.className = "message-row assistant thinking";
+      thinkingRow.innerHTML = '<div class="avatar">OC</div><div class="message-content">Thinking...</div>';
+      chatEl.appendChild(thinkingRow);
       chatEl.scrollTop = chatEl.scrollHeight;
 
       sendBtn.disabled = true;
@@ -197,7 +217,7 @@
           })
         });
         const data = await res.json();
-        thinkingWrapper.remove();
+        thinkingRow.remove();
         
         if (data.session_id) currentSessionId = data.session_id;
         loadSessions(); // refresh the list to show new chat title
@@ -208,7 +228,7 @@
           addBubble("assistant", data.reply);
         }
       } catch (err) {
-        thinkingWrapper.remove();
+        thinkingRow.remove();
         addBubble("assistant", "Connection error.");
       } finally {
         sendBtn.disabled = false;
