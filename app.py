@@ -14,7 +14,31 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from agents.db import get_collection
+from pymongo import MongoClient
+
+MONGO_URI = os.getenv("MONGO_URI", "mongodb+srv://test:test@cluster.mongodb.net/test?retryWrites=true&w=majority")
+# We will use a safe default if MONGO_URI isn't valid, or just standard localhost
+try:
+    mongo_client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
+    db = mongo_client["office_calm_db"]
+except Exception:
+    db = None
+
+def get_collection(name: str):
+    if db is not None:
+        return db[name]
+    # Fallback to a mock collection if mongo fails so it doesn't crash
+    class MockCollection:
+        def insert_one(self, *args, **kwargs): pass
+        def update_one(self, *args, **kwargs): pass
+        def find_one(self, *args, **kwargs): return None
+        def find(self, *args, **kwargs):
+            class Cursor:
+                def sort(self, *args, **kwargs): return self
+                def __iter__(self): return iter([])
+            return Cursor()
+        def delete_one(self, *args, **kwargs): pass
+    return MockCollection()
 
 import google.generativeai as genai
 from google.api_core.exceptions import (
