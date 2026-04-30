@@ -429,6 +429,7 @@ async def index(request: Request):
             "model": GEMINI_MODEL,
         },
     )
+@app.post("/api/sessions/create")
 async def create_session():
     sid = _create_session()
     return JSONResponse({"session_id": sid})
