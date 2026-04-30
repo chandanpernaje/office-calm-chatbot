@@ -15,7 +15,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, JSONResponse
 from pymongo import MongoClient
 
-MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
+MONGO_URI = os.getenv("MONGO_URI", "mongodb+srv://v:ggvvbb@cluster0.kcv6w.mongodb.net/?appName=Cluster0")
 MONGO_DB = os.getenv("MONGO_DB", "office_calm_db")
 
 print(f"DEBUG: Connecting to MongoDB at {MONGO_URI[:20]}... DB: {MONGO_DB}")
