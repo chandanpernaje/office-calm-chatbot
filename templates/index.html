@@ -13,7 +13,61 @@
       color: #e5e7eb;
       height: 100vh;
       display: flex;
+    }
+    
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 260px;
+      background-color: #202123;
+      border-right: 1px solid rgba(255,255,255,0.05);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    .new-chat-btn {
+      margin: 15px;
+      padding: 12px;
+      background-color: transparent;
+      border: 1px solid rgba(255,255,255,0.2);
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: left;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+    .new-chat-btn:hover { background-color: rgba(255,255,255,0.05); }
+    
+    .history-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .history-list::-webkit-scrollbar { width: 4px; }
+    .history-list::-webkit-scrollbar-thumb { background-color: #555; }
+    
+    .session-item {
+      padding: 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      color: #ececf1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: background 0.2s;
+    }
+    .session-item:hover, .session-item.active { background-color: #343541; }
+    
+    /* ── Main Chat Area ── */
+    .main-area {
+      flex: 1;
+      display: flex;
       justify-content: center;
+      height: 100vh;
     }
     .container {
       width: 100%;
@@ -26,6 +80,7 @@
     header { padding-top: 24px; padding-bottom: 24px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 20px;}
     header h1 { color: #8fa5ff; font-size: 24px; font-weight: 600; margin-bottom: 6px; text-shadow: 0 2px 10px rgba(143, 165, 255, 0.2); }
     header p { color: #9ca3af; font-size: 13px; font-weight: 500;}
+    
     .chat-box {
       flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 24px; padding-right: 12px; margin-bottom: 20px; scroll-behavior: smooth;
     }
@@ -45,6 +100,7 @@
       background-color: #3f4451; color: #e5e7eb; border-radius: 20px 20px 20px 4px; border: 1px solid rgba(255,255,255,0.03);
     }
     .bubble.thinking { color: #9ca3af; font-style: italic; background-color: transparent !important; box-shadow: none !important; border: none !important; padding: 10px 20px; }
+    
     .composer { display: flex; flex-direction: column; background: rgba(0,0,0,0.2); padding: 16px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); }
     #form { display: flex; align-items: flex-end; gap: 14px; margin-bottom: 12px; }
     textarea {
@@ -60,23 +116,35 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>Office Calm Chatbot</h1>
-      <p>Hidden admin analysis + Gemini response (model: gemini-1.5-flash)</p>
-    </header>
 
-    <div class="chat-box" id="chat">
-      <!-- Messages go here -->
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <button class="new-chat-btn" id="newChatBtn">+ New Chat</button>
+    <div class="history-list" id="historyList">
+      <!-- Session items will be appended here -->
     </div>
+  </div>
 
-    <div class="composer">
-      <form id="form">
-        <textarea id="msg" placeholder="Type your office problem... (Kannada/Hindi/English are OK)" rows="1" required></textarea>
-        <button type="submit" id="sendBtn">Send</button>
-      </form>
-      <div class="footer-note">
-        Notes: Your hidden analysis prompt stays on the server. The browser only sees your messages and the final reply.
+  <!-- Main Chat Area -->
+  <div class="main-area">
+    <div class="container">
+      <header>
+        <h1>Office Calm Chatbot</h1>
+        <p>Hidden admin analysis + Gemini response (model: gemini-1.5-flash)</p>
+      </header>
+
+      <div class="chat-box" id="chat">
+        <!-- Messages go here -->
+      </div>
+
+      <div class="composer">
+        <form id="form">
+          <textarea id="msg" placeholder="Type your office problem... (Kannada/Hindi/English are OK)" rows="1" required></textarea>
+          <button type="submit" id="sendBtn">Send</button>
+        </form>
+        <div class="footer-note">
+          Notes: Your hidden analysis prompt stays on the server. The browser only sees your messages and the final reply.
+        </div>
       </div>
     </div>
   </div>
@@ -86,9 +154,50 @@
     const form = document.getElementById("form");
     const msg = document.getElementById("msg");
     const sendBtn = document.getElementById("sendBtn");
+    const historyList = document.getElementById("historyList");
+    const newChatBtn = document.getElementById("newChatBtn");
     
     // Store session ID to maintain chat history
     let currentSessionId = null;
+
+    // Load sessions on startup
+    async function loadSessions() {
+      try {
+        const res = await fetch("/api/sessions");
+        const data = await res.json();
+        historyList.innerHTML = "";
+        data.sessions.forEach(s => {
+          const div = document.createElement("div");
+          div.className = "session-item" + (s.session_id === currentSessionId ? " active" : "");
+          div.textContent = s.title || "New Chat";
+          div.onclick = () => loadSessionHistory(s.session_id);
+          historyList.appendChild(div);
+        });
+      } catch (err) {
+        console.error("Failed to load sessions", err);
+      }
+    }
+
+    async function loadSessionHistory(sessionId) {
+      currentSessionId = sessionId;
+      chat.innerHTML = ""; // Clear current chat
+      loadSessions(); // Re-render sidebar to update active state
+      try {
+        const res = await fetch(`/api/sessions/${sessionId}/history`);
+        const data = await res.json();
+        data.messages.forEach(m => {
+          addMsg(m.role, m.content);
+        });
+      } catch (err) {
+        console.error("Failed to load history", err);
+      }
+    }
+
+    newChatBtn.onclick = () => {
+      currentSessionId = null;
+      chat.innerHTML = "";
+      loadSessions();
+    };
     
     // Auto-resize textarea
     msg.addEventListener("input", () => {
@@ -161,9 +270,9 @@
         const data = await res.json();
         dotsRow.remove();
         
-        // Save the session ID so context is remembered
-        if (data.session_id) {
+        if (data.session_id && data.session_id !== currentSessionId) {
           currentSessionId = data.session_id;
+          loadSessions(); // Refresh sidebar with the new session
         }
         
         if (data.error) {
@@ -179,6 +288,9 @@
         msg.focus();
       }
     });
+
+    // Initial load
+    loadSessions();
   </script>
 </body>
 </html>
