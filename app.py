@@ -7,10 +7,12 @@ from datetime import datetime, timezone
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi import Body
+from fastapi import Body, Request
+from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.exceptions import RequestValidationError
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from agents.db import get_collection
 
@@ -31,6 +33,15 @@ if _GEMINI_READY:
         _GEMINI_READY = False
 
 app = FastAPI(title="Office Calm Chatbot")
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    import traceback
+    traceback.print_exc()
+    return JSONResponse(
+        status_code=500,
+        content={"error": f"Internal Server Error: {str(exc)}"}
+    )
 
 # Serve React build (if exists)
 dist_dir = os.path.join(os.path.dirname(__file__), "frontend", "dist")
