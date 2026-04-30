@@ -31,8 +31,11 @@ if _GEMINI_READY:
         _GEMINI_READY = False
 
 app = FastAPI(title="Office Calm Chatbot")
-app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")
+
+# Serve React build (if exists)
+dist_dir = os.path.join(os.path.dirname(__file__), "frontend", "dist")
+if os.path.isdir(dist_dir):
+    app.mount("/assets", StaticFiles(directory=os.path.join(dist_dir, "assets")), name="assets")
 
 # ── Topic validation keywords ──
 OFFICE_STRESS_KEYWORDS = [
@@ -354,11 +357,11 @@ def _select_working_model_name(preferred: str) -> str:
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
-    return templates.TemplateResponse("index.html", {
-        "request": request,
-        "gemini_ready": _GEMINI_READY,
-        "model": GEMINI_MODEL,
-    })
+    index_path = os.path.join(os.path.dirname(__file__), "frontend", "dist", "index.html")
+    if os.path.exists(index_path):
+        with open(index_path, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    return HTMLResponse("React frontend build not found. Run `npm run build` in the frontend directory.")
 
 
 @app.post("/api/sessions/create")
