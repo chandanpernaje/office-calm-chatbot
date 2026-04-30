@@ -232,36 +232,40 @@ def _delete_session(session_id: str):
 
 # ── Offline fallback ──
 
-def _offline_office_response(user_text: str) -> str:
+def _offline_office_response(user_text: str, is_limit: bool = False) -> str:
     t = (user_text or "").strip()
     low = t.lower()
     has_kn = bool(re.search(r"[\u0C80-\u0CFF]", t))
     has_hi = bool(re.search(r"[\u0900-\u097F]", t))
+
+    header = "🛑 **API Limit Reached (AI Resting)**\n\n" if is_limit else "✨ **Professional Offline Support**\n\n"
+    footer = "\n\n*Our AI will be fully restored shortly. Please describe your situation in one sentence.*" if is_limit else ""
 
     # Simple Professional Greetings
     greetings = ["hi", "hello", "hey", "good morning", "good afternoon", "good evening", "namaste"]
     if any(low == g or low.startswith(g + " ") for g in greetings):
         if has_kn: return "ನಮಸ್ಕಾರ. ನಿಮ್ಮ ಕಚೇರಿಯ ಒತ್ತಡವನ್ನು ನಿರ್ವಹಿಸಲು ನಾನು ಇಲ್ಲಿದ್ದೇನೆ. ನಿಮಗೆ ಹೇಗೆ ಸಹಾಯ ಮಾಡಲಿ?"
         if has_hi: return "नमस्ते। मैं आपके तनाव प्रबंधन में सहायता के लिए यहाँ हूँ। मैं आपकी कैसे मदद कर सकता हूँ?"
-        return "Greetings. I am here to support your workplace wellbeing. How can I assist you with your professional stress today?"
+        return "Greetings. I am your Office Calm consultant. I am here to support your workplace wellbeing. How can I assist you with your professional stress today?"
 
     crisis_kw = ["suicide", "self-harm", "kill myself", "end it all", "want to die", "hopeless"]
     if any(kw in low for kw in crisis_kw):
-        return "⚠️ **Professional Alert:** You seem to be in significant distress. Please contact a crisis helpline immediately: India (AASRA: 9820466726) or your local emergency services. You are not alone."
+        return "⚠️ **Professional Alert:** You seem to be in significant distress. Please contact a crisis helpline immediately: India (AASRA: 9820466726). You are not alone."
 
-    # Simple Professional Guidance
-    if has_kn:
-        return "ನಮ್ಮ AI ಪ್ರಸ್ತುತ ಕಾರ್ಯನಿರತವಾಗಿದೆ. ದಯವಿಟ್ಟು 60 ಸೆಕೆಂಡುಗಳ ಕಾಲ ದೀರ್ಘವಾಗಿ ಉಸಿರಾಡಿ ಮತ್ತು ಸ್ವಲ್ಪ ನೀರು ಕುಡಿಯಿರಿ. ನಿಮ್ಮ ಸಮಸ್ಯೆಯನ್ನು ಸಂಕ್ಷಿಪ್ತವಾಗಿ ತಿಳಿಸಿ."
+    # Restore Keyword-Based Advice (Simplified)
+    boss_kw = ["boss", "manager", "supervisor", "shouted", "yelled", "scolded"]
+    work_kw = ["too much work", "overwhelmed", "overload", "deadline", "pressure"]
     
-    if has_hi:
-        return "हमारा AI वर्तमान में व्यस्त है। कृपया 60 सेकंड के लिए गहरी सांस लें और थोड़ा पानी पिएं। अपनी समस्या संक्षेप में बताएं।"
+    if any(kw in low for kw in boss_kw):
+        return header + "For manager conflicts: Practice neutral communication and document the facts of the encounter. Breathe deeply before responding." + footer
+    
+    if any(kw in low for kw in work_kw):
+        return header + "For high workloads: Prioritize one small task and communicate your capacity clearly to your supervisor." + footer
 
-    return ("🛑 **API Limit Reached (AI Resting)**\n\n"
-            "Our AI has reached its current processing limit. While it resets, here is a professional pro-tip to manage your stress:\n\n"
+    return (header + 
             "1. **Breathe:** Take 3 deep breaths (4s in, 8s out).\n"
             "2. **Hydrate:** Drink a glass of water.\n"
-            "3. **Focus:** Pick one tiny task to do for 5 minutes.\n\n"
-            "I will be fully restored shortly. Please describe your situation in one sentence.")
+            "3. **Focus:** Pick one tiny task to do for 5 minutes." + footer)
 
 
 # ── Gemini prompts ──
@@ -462,11 +466,17 @@ async def chat(payload: Dict[str, Any]):
     _save_message(session_id, "user", user_text)
     _update_session_title(session_id, user_text)
 
+    # ── DEBUG: Test Offline Limit ──
+    if user_text.upper() == "OFFLINE_TEST":
+        reply = _offline_office_response(user_text, is_limit=True)
+        _save_message(session_id, "assistant", reply)
+        return JSONResponse({"reply": reply, "session_id": session_id})
+
     # ── Get DB history for context ──
     db_history = _get_session_history(session_id)
 
     if not _GEMINI_READY:
-        reply = _offline_office_response(user_text)
+        reply = _offline_office_response(user_text, is_limit=False)
         _save_message(session_id, "assistant", reply)
         return JSONResponse({"reply": reply, "session_id": session_id,
                              "warning": "Gemini API key missing. Using offline mode."})
@@ -490,7 +500,7 @@ async def chat(payload: Dict[str, Any]):
                 return JSONResponse({"reply": OFF_TOPIC_RESPONSE, "session_id": session_id, "off_topic": True})
             reply = await gemini_reply(user_text, analysis, history=db_history)
         except ResourceExhausted:
-            reply = _offline_office_response(user_text)
+            reply = _offline_office_response(user_text, is_limit=True)
             _save_message(session_id, "assistant", reply)
             return JSONResponse({"reply": reply, "session_id": session_id,
                                  "warning": "Gemini quota exceeded. Offline response."})
@@ -504,12 +514,15 @@ async def chat(payload: Dict[str, Any]):
     except PermissionDenied as e:
         return JSONResponse({"error": f"Permission denied: {e}"}, status_code=403)
     except ResourceExhausted:
-        reply = _offline_office_response(user_text)
+        reply = _offline_office_response(user_text, is_limit=True)
         _save_message(session_id, "assistant", reply)
         return JSONResponse({"reply": reply, "session_id": session_id,
                              "warning": "Quota exceeded. Offline response."})
     except Exception as e:
-        return JSONResponse({"error": f"Server error: {e}"}, status_code=500)
+        # Standard maintenance / unexpected error (not a limit)
+        reply = _offline_office_response(user_text, is_limit=False)
+        _save_message(session_id, "assistant", reply)
+        return JSONResponse({"reply": reply, "session_id": session_id})
 
     _save_message(session_id, "assistant", reply)
     return JSONResponse({"reply": reply, "session_id": session_id})
