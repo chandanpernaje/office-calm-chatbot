@@ -21,7 +21,7 @@ An AI-powered chatbot to help office workers manage **workplace stress**, **ange
 
 | Layer | Technologies |
 |---|---|
-| **Frontend** | HTML5, CSS3, Vanilla JavaScript, Jinja2, Google Fonts (Inter) |
+| **Frontend** | React, Vite, Tailwind CSS / Vanilla CSS, Lucide Icons, Google Fonts (Inter) |
 | **Backend** | Python 3.10+, FastAPI, Uvicorn |
 | **AI/ML** | Google Gemini 2.5 Flash, google-generativeai SDK |
 | **Database** | MongoDB, PyMongo |
