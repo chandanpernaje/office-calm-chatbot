@@ -116,16 +116,21 @@
       const row = document.createElement("div");
       row.className = `message-row ${role}`;
 
+      const inner = document.createElement("div");
+      inner.className = "message-inner";
+
       const avatar = document.createElement("div");
       avatar.className = "avatar";
-      avatar.textContent = role === "user" ? "You" : "OC";
+      avatar.textContent = role === "user" ? "U" : "OC";
 
       const content = document.createElement("div");
       content.className = "message-content";
       content.textContent = text;
 
-      row.appendChild(avatar);
-      row.appendChild(content);
+      inner.appendChild(avatar);
+      inner.appendChild(content);
+      row.appendChild(inner);
+
       chatEl.appendChild(row);
       chatEl.scrollTop = chatEl.scrollHeight;
       return row;
@@ -239,7 +244,7 @@
 
       const thinkingRow = document.createElement("div");
       thinkingRow.className = "message-row assistant thinking";
-      thinkingRow.innerHTML = '<div class="avatar">OC</div><div class="message-content"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>';
+      thinkingRow.innerHTML = '<div class="message-inner"><div class="avatar">OC</div><div class="message-content"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div>';
       chatEl.appendChild(thinkingRow);
       chatEl.scrollTop = chatEl.scrollHeight;
 
