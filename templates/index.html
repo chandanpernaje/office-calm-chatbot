@@ -4,14 +4,65 @@
   <meta charset="UTF-8">
   <title>Office Calm Chatbot</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="/static/style.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #3b3d41;
+      color: #e5e7eb;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      width: 100%;
+      max-width: 800px;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      padding: 20px;
+    }
+    header { padding-top: 20px; padding-bottom: 30px; }
+    header h1 { color: #8fa5ff; font-size: 22px; font-weight: 600; margin-bottom: 8px; }
+    header p { color: #9ca3af; font-size: 13px; }
+    .chat-box {
+      flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; padding-right: 10px; margin-bottom: 20px;
+    }
+    .chat-box::-webkit-scrollbar { width: 6px; }
+    .chat-box::-webkit-scrollbar-thumb { background-color: #555; border-radius: 4px; }
+    .msg-row { display: flex; width: 100%; }
+    .msg-row.user { justify-content: flex-end; }
+    .msg-row.assistant { justify-content: flex-start; }
+    .bubble {
+      max-width: 85%; padding: 14px 18px; font-size: 14px; line-height: 1.5; word-wrap: break-word;
+    }
+    .msg-row.user .bubble {
+      background-color: #6b8afd; color: white; border-radius: 20px 20px 4px 20px;
+    }
+    .msg-row.assistant .bubble {
+      background-color: #3f4451; color: #e5e7eb; border-radius: 20px 20px 20px 4px;
+    }
+    .bubble.thinking { color: #9ca3af; font-style: italic; }
+    .composer { display: flex; flex-direction: column; }
+    #form { display: flex; align-items: flex-end; gap: 12px; margin-bottom: 12px; }
+    textarea {
+      flex: 1; background-color: transparent; border: none; color: #9ca3af; font-family: inherit; font-size: 14px; resize: none; outline: none; min-height: 24px; max-height: 120px; padding: 8px 0;
+    }
+    textarea::placeholder { color: #6b7280; }
+    button[type="submit"] {
+      background-color: #6b8afd; color: white; border: none; border-radius: 12px; padding: 10px 20px; font-size: 14px; font-weight: 500; cursor: pointer; transition: opacity 0.2s;
+    }
+    button[type="submit"]:hover { opacity: 0.9; }
+    button[type="submit"]:disabled { opacity: 0.5; cursor: not-allowed; }
+    .footer-note { font-size: 11px; color: #6b7280; text-align: center; }
+  </style>
 </head>
 <body>
   <div class="container">
     <header>
       <h1>Office Calm Chatbot</h1>
-      <p>Hidden admin analysis + Gemini response (model: {{ model }})</p>
+      <p>Hidden admin analysis + Gemini response (model: gemini-1.5-flash)</p>
     </header>
 
     <div class="chat-box" id="chat">
