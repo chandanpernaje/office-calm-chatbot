@@ -9,7 +9,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Inter', sans-serif;
-      background-color: #3b3d41;
+      background: linear-gradient(135deg, #2b2c30 0%, #3a3b40 100%);
       color: #e5e7eb;
       height: 100vh;
       display: flex;
@@ -23,38 +23,39 @@
       height: 100vh;
       padding: 20px;
     }
-    header { padding-top: 20px; padding-bottom: 30px; }
-    header h1 { color: #8fa5ff; font-size: 22px; font-weight: 600; margin-bottom: 8px; }
-    header p { color: #9ca3af; font-size: 13px; }
+    header { padding-top: 24px; padding-bottom: 24px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 20px;}
+    header h1 { color: #8fa5ff; font-size: 24px; font-weight: 600; margin-bottom: 6px; text-shadow: 0 2px 10px rgba(143, 165, 255, 0.2); }
+    header p { color: #9ca3af; font-size: 13px; font-weight: 500;}
     .chat-box {
-      flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; padding-right: 10px; margin-bottom: 20px;
+      flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 24px; padding-right: 12px; margin-bottom: 20px; scroll-behavior: smooth;
     }
     .chat-box::-webkit-scrollbar { width: 6px; }
     .chat-box::-webkit-scrollbar-thumb { background-color: #555; border-radius: 4px; }
-    .msg-row { display: flex; width: 100%; }
+    .msg-row { display: flex; width: 100%; animation: fadeIn 0.3s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     .msg-row.user { justify-content: flex-end; }
     .msg-row.assistant { justify-content: flex-start; }
     .bubble {
-      max-width: 85%; padding: 14px 18px; font-size: 14px; line-height: 1.5; word-wrap: break-word;
+      max-width: 80%; padding: 16px 20px; font-size: 14.5px; line-height: 1.6; word-wrap: break-word; box-shadow: 0 4px 15px rgba(0,0,0,0.15);
     }
     .msg-row.user .bubble {
-      background-color: #6b8afd; color: white; border-radius: 20px 20px 4px 20px;
+      background: linear-gradient(135deg, #6b8afd 0%, #5474f0 100%); color: white; border-radius: 20px 20px 4px 20px;
     }
     .msg-row.assistant .bubble {
-      background-color: #3f4451; color: #e5e7eb; border-radius: 20px 20px 20px 4px;
+      background-color: #3f4451; color: #e5e7eb; border-radius: 20px 20px 20px 4px; border: 1px solid rgba(255,255,255,0.03);
     }
-    .bubble.thinking { color: #9ca3af; font-style: italic; }
-    .composer { display: flex; flex-direction: column; }
-    #form { display: flex; align-items: flex-end; gap: 12px; margin-bottom: 12px; }
+    .bubble.thinking { color: #9ca3af; font-style: italic; background-color: transparent !important; box-shadow: none !important; border: none !important; padding: 10px 20px; }
+    .composer { display: flex; flex-direction: column; background: rgba(0,0,0,0.2); padding: 16px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); }
+    #form { display: flex; align-items: flex-end; gap: 14px; margin-bottom: 12px; }
     textarea {
-      flex: 1; background-color: transparent; border: none; color: #9ca3af; font-family: inherit; font-size: 14px; resize: none; outline: none; min-height: 24px; max-height: 120px; padding: 8px 0;
+      flex: 1; background-color: transparent; border: none; color: #e5e7eb; font-family: inherit; font-size: 15px; resize: none; outline: none; min-height: 24px; max-height: 120px; padding: 6px 0;
     }
     textarea::placeholder { color: #6b7280; }
     button[type="submit"] {
-      background-color: #6b8afd; color: white; border: none; border-radius: 12px; padding: 10px 20px; font-size: 14px; font-weight: 500; cursor: pointer; transition: opacity 0.2s;
+      background: linear-gradient(135deg, #6b8afd 0%, #5474f0 100%); color: white; border: none; border-radius: 12px; padding: 12px 24px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(107, 138, 253, 0.3);
     }
-    button[type="submit"]:hover { opacity: 0.9; }
-    button[type="submit"]:disabled { opacity: 0.5; cursor: not-allowed; }
+    button[type="submit"]:hover { transform: translateY(-1px); box-shadow: 0 6px 15px rgba(107, 138, 253, 0.4); }
+    button[type="submit"]:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
     .footer-note { font-size: 11px; color: #6b7280; text-align: center; }
   </style>
 </head>
@@ -116,7 +117,18 @@
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const text = msg.value.trim();
+      
       if (!text) return;
+      
+      if (text.length < 5) {
+        alert("Please provide a little more detail so I can assist you better!");
+        return;
+      }
+      
+      if (text.length > 2000) {
+        alert("Your message is too long! Please keep it under 2000 characters.");
+        return;
+      }
       
       msg.value = "";
       msg.style.height = "auto";
